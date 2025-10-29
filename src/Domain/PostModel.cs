@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 using System.ComponentModel.DataAnnotations;
 
 namespace BlogApi.Domain;
@@ -7,6 +9,7 @@ public class PostModel
     public int Id { get; set; }
 
     public int UserModelId { get; set; }
+    [DeleteBehavior(DeleteBehavior.NoAction)]
     public required UserModel User { get; set; }
 
     [MaxLength(100)]

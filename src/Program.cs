@@ -1,3 +1,8 @@
+using BlogApi.Infrastructure;
+
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -13,6 +18,13 @@ try
             .ReadFrom.Services(services)
             .Enrich.FromLogContext()
             .WriteTo.Console());
+
+    SqlConnectionStringBuilder sqlConnectionStringBuilder = new(builder.Configuration.GetConnectionString("BlogContext"))
+    {
+        Password = builder.Configuration["BlogContext:Password"]
+    };
+
+    builder.Services.AddDbContext<BlogContext>(options => options.UseSqlServer(sqlConnectionStringBuilder.ConnectionString));
 
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();
