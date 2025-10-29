@@ -5,7 +5,9 @@ namespace BlogApi.Domain;
 public class PostModel
 {
     public int Id { get; set; }
+
     public int UserModelId { get; set; }
+    public required UserModel User { get; set; }
 
     [MaxLength(100)]
     public string? Title { get; set; }
