@@ -8,9 +8,9 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Services.AddSerilog((service, ls) => ls
+    builder.Services.AddSerilog((services, ls) => ls
             .ReadFrom.Configuration(builder.Configuration)
-            .ReadFrom.Services(service)
+            .ReadFrom.Services(services)
             .Enrich.FromLogContext()
             .WriteTo.Console());
 
@@ -22,6 +22,7 @@ try
     if (app.Environment.IsDevelopment())
     {
         app.MapOpenApi();
+        app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
     }
 
     app.UseHttpsRedirection();
