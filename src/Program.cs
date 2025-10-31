@@ -1,3 +1,4 @@
+using BlogApi.Domain;
 using BlogApi.Infrastructure;
 
 using Microsoft.Data.SqlClient;
@@ -26,6 +27,8 @@ try
 
     builder.Services.AddDbContext<BlogContext>(options => options.UseSqlServer(sqlConnectionStringBuilder.ConnectionString));
 
+    builder.Services.AddIdentityApiEndpoints<UserModel>().AddEntityFrameworkStores<BlogContext>();
+
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();
 
@@ -39,9 +42,12 @@ try
 
     app.UseHttpsRedirection();
 
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();
+
+    app.MapIdentityApi<UserModel>();
 
     app.Run();
 }
