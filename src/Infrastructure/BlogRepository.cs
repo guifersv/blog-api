@@ -1,4 +1,3 @@
-
 using BlogApi.Domain;
 using BlogApi.Services.Interfaces;
 
@@ -8,58 +7,55 @@ public class BlogRepository(BlogContext context) : IBlogRepository
 {
     private readonly BlogContext _context = context;
 
-    Task IBlogRepository.CreateCommentModel(CommentModel commentModel)
+    public async Task<PostModel> CreatePostModel(PostModel postModel)
     {
-        throw new NotImplementedException();
+        var createdModel = await _context.Posts.AddAsync(postModel);
+        await _context.SaveChangesAsync();
+        return createdModel.Entity;
     }
 
-    Task IBlogRepository.CreateLikeModel(LikeModel likeModel)
+    public async Task<UserModel?> FindUserModelById(int userModelId)
     {
-        throw new NotImplementedException();
+        return await _context.Users.FindAsync(userModelId);
     }
 
-    Task IBlogRepository.CreatePostModel(PostModel postModel)
+    public async Task<PostModel?> FindPostModelById(int postModelId)
     {
-        throw new NotImplementedException();
+        return await _context.Posts.FindAsync(postModelId);
     }
 
-    Task IBlogRepository.DeleteCommentModel(CommentModel commentModel)
+    public async Task<CommentModel?> FindCommentModelById(int commentModel)
     {
-        throw new NotImplementedException();
+        return await _context.Comments.FindAsync(commentModel);
     }
 
-    Task IBlogRepository.DeleteLikeModel(LikeModel likeModel)
+    public async Task UpdatePostModel(PostModel postModel)
     {
-        throw new NotImplementedException();
+        _context.Posts.Update(postModel);
+        await _context.SaveChangesAsync();
     }
 
-    Task IBlogRepository.DeletePostModel(PostModel postModel)
+    public async Task UpdateCommentModel(CommentModel commentModel)
     {
-        throw new NotImplementedException();
+        _context.Comments.Update(commentModel);
+        await _context.SaveChangesAsync();
     }
 
-    Task IBlogRepository.FindCommentModelById(int commentModelId)
+    public async Task DeletePostModel(PostModel postModel)
     {
-        throw new NotImplementedException();
+        _context.Posts.Remove(postModel);
+        await _context.SaveChangesAsync();
     }
 
-    Task IBlogRepository.FindPostModelById(int postModelId)
+    public async Task DeleteCommentModel(CommentModel commentModel)
     {
-        throw new NotImplementedException();
+        _context.Comments.Remove(commentModel);
+        await _context.SaveChangesAsync();
     }
 
-    Task IBlogRepository.FindUserModelById(int userModelId)
+    public async Task DeleteLikeModel(LikeModel likeModel)
     {
-        throw new NotImplementedException();
-    }
-
-    Task IBlogRepository.UpdateCommentModel(CommentModel commentModel)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task IBlogRepository.UpdatePostModel(PostModel postModel)
-    {
-        throw new NotImplementedException();
+        _context.Likes.Remove(likeModel);
+        await _context.SaveChangesAsync();
     }
 }

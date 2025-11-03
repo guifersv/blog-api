@@ -4,13 +4,11 @@ namespace BlogApi.Services.Interfaces;
 
 public interface IBlogRepository
 {
-    public Task CreatePostModel(PostModel postModel);
-    public Task CreateCommentModel(CommentModel commentModel);
-    public Task CreateLikeModel(LikeModel likeModel);
+    public Task<PostModel> CreatePostModel(PostModel postModel);
 
-    public Task FindUserModelById(int userModelId);
-    public Task FindPostModelById(int postModelId);
-    public Task FindCommentModelById(int commentModelId);
+    public Task<UserModel?> FindUserModelById(int userModelId);
+    public Task<PostModel?> FindPostModelById(int postModelId);
+    public Task<CommentModel?> FindCommentModelById(int commentModelId);
 
     public Task UpdatePostModel(PostModel postModel);
     public Task UpdateCommentModel(CommentModel commentModel);
