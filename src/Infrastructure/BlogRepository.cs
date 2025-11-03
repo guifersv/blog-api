@@ -1,22 +1,34 @@
 using BlogApi.Domain;
 using BlogApi.Services.Interfaces;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace BlogApi.Infrastructure;
 
 public class BlogRepository(BlogContext context) : IBlogRepository
 {
     private readonly BlogContext _context = context;
 
-    public async Task<PostModel> CreatePostModel(PostModel postModel)
+    public async Task<PostModel> CreatePostModel(UserModel userModel, PostModel postModel)
     {
-        var createdModel = await _context.Posts.AddAsync(postModel);
+        userModel.PostModelNavigation.Add(postModel);
+        var updatedModel = await UpdateUserModel(userModel);
         await _context.SaveChangesAsync();
-        return createdModel.Entity;
+        return updatedModel.PostModelNavigation.Last();
     }
 
-    public async Task<UserModel?> FindUserModelById(int userModelId)
+    public async Task<CommentModel> CreateCommentModel(PostModel postModel, CommentModel commentModel)
     {
-        return await _context.Users.FindAsync(userModelId);
+        postModel.CommentModelNavigation.Add(commentModel);
+        var updatedModel = await UpdatePostModel(postModel);
+        return updatedModel.CommentModelNavigation.Last();
+    }
+
+    public async Task<LikeModel> CreateLikeModel(PostModel postModel, LikeModel likeModel)
+    {
+        postModel.LikeModelNavigation.Add(likeModel);
+        var updatedModel = await UpdatePostModel(postModel);
+        return updatedModel.LikeModelNavigation.Last();
     }
 
     public async Task<PostModel?> FindPostModelById(int postModelId)
@@ -24,21 +36,43 @@ public class BlogRepository(BlogContext context) : IBlogRepository
         return await _context.Posts.FindAsync(postModelId);
     }
 
-    public async Task<CommentModel?> FindCommentModelById(int commentModel)
+    public async Task<PostModel?> GetPostModelAsync(int postModelId)
     {
-        return await _context.Comments.FindAsync(commentModel);
+        return await _context.Posts
+            .Include(p => p.LikeModelNavigation)
+            .Include(p => p.CommentModelNavigation)
+            .FirstOrDefaultAsync(m => m.Id == postModelId);
     }
 
-    public async Task UpdatePostModel(PostModel postModel)
+    public async Task<CommentModel?> FindCommentModelById(int commentModelId)
     {
-        _context.Posts.Update(postModel);
-        await _context.SaveChangesAsync();
+        return await _context.Comments.FindAsync(commentModelId);
     }
 
-    public async Task UpdateCommentModel(CommentModel commentModel)
+    public async Task<CommentModel?> GetCommentModelAsync(int commentModelId)
     {
-        _context.Comments.Update(commentModel);
+        return await _context.Comments.FirstOrDefaultAsync(m => m.Id == commentModelId);
+    }
+
+    public async Task<PostModel> UpdatePostModel(PostModel postModel)
+    {
+        var updatedModel = _context.Posts.Update(postModel);
         await _context.SaveChangesAsync();
+        return updatedModel.Entity;
+    }
+
+    public async Task<UserModel> UpdateUserModel(UserModel userModel)
+    {
+        var updatedModel = _context.Users.Update(userModel);
+        await _context.SaveChangesAsync();
+        return updatedModel.Entity;
+    }
+
+    public async Task<CommentModel> UpdateCommentModel(CommentModel commentModel)
+    {
+        var updatedModel = _context.Comments.Update(commentModel);
+        await _context.SaveChangesAsync();
+        return updatedModel.Entity;
     }
 
     public async Task DeletePostModel(PostModel postModel)
@@ -56,6 +90,12 @@ public class BlogRepository(BlogContext context) : IBlogRepository
     public async Task DeleteLikeModel(LikeModel likeModel)
     {
         _context.Likes.Remove(likeModel);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteUserModel(UserModel userModel)
+    {
+        _context.Users.Remove(userModel);
         await _context.SaveChangesAsync();
     }
 }
