@@ -18,3 +18,9 @@ public class CommentModel
 
     public DateTime CreatedAt { get; set; }
 }
+
+public record CommentDto
+{
+    public string? Content { get; set; }
+    public DateTime CreatedAt { get; set; }
+}

@@ -16,3 +16,8 @@ public class LikeModel
 
     public DateTime CreatedAt { get; set; }
 }
+
+public record LikeDto
+{
+    public DateTime CreatedAt { get; set; }
+}

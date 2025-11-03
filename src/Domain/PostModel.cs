@@ -23,3 +23,14 @@ public class PostModel
     public ICollection<CommentModel> CommentModelNavigation { get; set; } = new List<CommentModel>();
     public ICollection<LikeModel> LikeModelNavigation { get; set; } = new List<LikeModel>();
 }
+
+public record PostDto
+{
+    [StringLength(100)]
+    public string? Title { get; set; }
+
+    public string? Content { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+}
