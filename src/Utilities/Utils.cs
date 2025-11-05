@@ -1,0 +1,16 @@
+using BlogApi.Domain;
+
+namespace BlogApi.Utilities;
+
+public static class Utils
+{
+    public static CommentDto CommentModel2Dto(CommentModel commentModel)
+    {
+        CommentDto commentDto = new()
+        {
+            Content = commentModel.Content,
+            CreatedAt = commentModel.CreatedAt,
+        };
+        return commentDto;
+    }
+}
