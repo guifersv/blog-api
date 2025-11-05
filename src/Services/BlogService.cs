@@ -8,17 +8,17 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
     private readonly ILogger<BlogService> _logger = logger;
     private readonly IBlogRepository _repository = repository;
 
-    Task<CommentDto> IBlogService.CreateComment(int userId, int postId, CommentDto commentDto)
+    public async Task<CommentDto> CreateComment(string userId, int postId, CommentDto commentDto)
     {
         throw new NotImplementedException();
     }
 
-    Task<LikeModel> IBlogService.CreateLike(int userId, int postId, LikeDto likeDto)
+    Task<LikeModel> IBlogService.CreateLike(string userId, int postId, LikeDto likeDto)
     {
         throw new NotImplementedException();
     }
 
-    Task<PostDto> IBlogService.CreatePost(int userId, PostDto postDto)
+    Task<PostDto> IBlogService.CreatePost(string userId, PostDto postDto)
     {
         throw new NotImplementedException();
     }
@@ -38,7 +38,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         throw new NotImplementedException();
     }
 
-    Task IBlogService.DeleteUser(int userId)
+    Task IBlogService.DeleteUser(string userId)
     {
         throw new NotImplementedException();
     }
