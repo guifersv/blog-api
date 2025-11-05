@@ -4,9 +4,9 @@ namespace BlogApi.Services.Interfaces;
 
 public interface IBlogService
 {
-    public Task<PostDto> CreatePost(int userId, PostDto postDto);
-    public Task<CommentDto> CreateComment(int userId, int postId, CommentDto commentDto);
-    public Task<LikeModel> CreateLike(int userId, int postId, LikeDto likeDto);
+    public Task<PostDto> CreatePost(string userId, PostDto postDto);
+    public Task<CommentDto> CreateComment(string userId, int postId, CommentDto commentDto);
+    public Task<LikeModel> CreateLike(string userId, int postId, LikeDto likeDto);
 
     public Task<PostDto?> GetPostAsync(int postId);
     public Task<CommentDto?> GetCommentAsync(int commentId);
@@ -18,5 +18,5 @@ public interface IBlogService
     public Task DeletePost(int postId);
     public Task DeleteComment(int commentId);
     public Task DeleteLike(int likeId);
-    public Task DeleteUser(int userId);
+    public Task DeleteUser(string userId);
 }
