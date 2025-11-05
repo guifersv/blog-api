@@ -1,6 +1,5 @@
 using BlogApi.Domain;
 using BlogApi.Services.Interfaces;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace BlogApi.Infrastructure;
@@ -17,7 +16,10 @@ public class BlogRepository(BlogContext context) : IBlogRepository
         return updatedModel.PostModelNavigation.Last();
     }
 
-    public async Task<CommentModel> CreateCommentModel(PostModel postModel, CommentModel commentModel)
+    public async Task<CommentModel> CreateCommentModel(
+        PostModel postModel,
+        CommentModel commentModel
+    )
     {
         postModel.CommentModelNavigation.Add(commentModel);
         var updatedModel = await UpdatePostModel(postModel);
@@ -38,8 +40,8 @@ public class BlogRepository(BlogContext context) : IBlogRepository
 
     public async Task<PostModel?> GetPostModelAsync(int postModelId)
     {
-        return await _context.Posts
-            .Include(p => p.LikeModelNavigation)
+        return await _context
+            .Posts.Include(p => p.LikeModelNavigation)
             .Include(p => p.CommentModelNavigation)
             .FirstOrDefaultAsync(m => m.Id == postModelId);
     }

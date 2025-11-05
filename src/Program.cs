@@ -1,31 +1,34 @@
 using BlogApi.Domain;
 using BlogApi.Infrastructure;
-
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-
 using Serilog;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
+Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateBootstrapLogger();
 
 try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Services.AddSerilog((services, ls) => ls
-            .ReadFrom.Configuration(builder.Configuration)
-            .ReadFrom.Services(services)
-            .Enrich.FromLogContext()
-            .WriteTo.Console());
+    builder.Services.AddSerilog(
+        (services, ls) =>
+            ls
+                .ReadFrom.Configuration(builder.Configuration)
+                .ReadFrom.Services(services)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+    );
 
-    SqlConnectionStringBuilder sqlConnectionStringBuilder = new(builder.Configuration.GetConnectionString("BlogContext"))
+    SqlConnectionStringBuilder sqlConnectionStringBuilder = new(
+        builder.Configuration.GetConnectionString("BlogContext")
+    )
     {
-        Password = builder.Configuration["BlogContext:Password"]
+        Password = builder.Configuration["BlogContext:Password"],
     };
 
-    builder.Services.AddDbContext<BlogContext>(options => options.UseSqlServer(sqlConnectionStringBuilder.ConnectionString));
+    builder.Services.AddDbContext<BlogContext>(options =>
+        options.UseSqlServer(sqlConnectionStringBuilder.ConnectionString)
+    );
 
     builder.Services.AddIdentityApiEndpoints<UserModel>().AddEntityFrameworkStores<BlogContext>();
 
