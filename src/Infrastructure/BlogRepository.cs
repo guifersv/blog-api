@@ -54,6 +54,11 @@ public class BlogRepository(BlogContext context) : IBlogRepository
         return await _context.Comments.FirstOrDefaultAsync(m => m.Id == commentModelId);
     }
 
+    public async Task<UserModel?> GetUserModelAsync(string userId)
+    {
+        return await _context.Users.FirstOrDefaultAsync(m => m.Id == userId);
+    }
+
     public async Task<PostModel> UpdatePostModel(PostModel postModel)
     {
         var updatedModel = _context.Posts.Update(postModel);
