@@ -34,9 +34,29 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         return Utils.CommentModel2Dto(createdModel);
     }
 
-    Task<LikeModel> IBlogService.CreateLike(string userId, int postId, LikeDto likeDto)
+    public async Task<LikeDto?> CreateLike(string userId, int postId, LikeDto likeDto)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("BlogService: Creating like.");
+        var userModel = await _repository.GetUserModelAsync(userId);
+        var postModel = await _repository.GetPostModelAsync(postId);
+
+        if (postModel is null || userModel is null)
+        {
+            _logger.LogWarning(
+                "BlogService: Can't create the like model: Post or User doesn't exist."
+            );
+            return null;
+        }
+
+        LikeModel likeModel = new()
+        {
+            User = userModel,
+            Post = postModel,
+            CreatedAt = likeDto.CreatedAt,
+        };
+
+        var createdModel = await _repository.CreateLikeModel(postModel, likeModel);
+        return Utils.LikeModel2Dto(createdModel);
     }
 
     Task<PostDto> IBlogService.CreatePost(string userId, PostDto postDto)
