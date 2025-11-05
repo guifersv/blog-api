@@ -11,7 +11,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
     public async Task<CommentDto?> CreateComment(string userId, int postId, CommentDto commentDto)
     {
-        _logger.LogDebug("BlogService: Creating comment form arguments.");
+        _logger.LogInformation("BlogService: Creating comment.");
         var userModel = await _repository.GetUserModelAsync(userId);
         var postModel = await _repository.GetPostModelAsync(postId);
 
