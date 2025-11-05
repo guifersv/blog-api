@@ -12,7 +12,7 @@ public interface IBlogRepository
     public Task<PostModel?> GetPostModelAsync(int postModelId);
     public Task<CommentModel?> FindCommentModelById(int commentModelId);
     public Task<CommentModel?> GetCommentModelAsync(int commentModelId);
-    public Task<UserModel> GetUserModelAsync(int userId);
+    public Task<UserModel?> GetUserModelAsync(string userId);
 
     public Task<PostModel> UpdatePostModel(PostModel postModel);
     public Task<UserModel> UpdateUserModel(UserModel userModel);
