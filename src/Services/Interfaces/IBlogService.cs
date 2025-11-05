@@ -4,7 +4,7 @@ namespace BlogApi.Services.Interfaces;
 
 public interface IBlogService
 {
-    public Task<PostDto> CreatePost(string userId, PostDto postDto);
+    public Task<PostDto?> CreatePost(string userId, PostDto postDto);
     public Task<CommentDto?> CreateComment(string userId, int postId, CommentDto commentDto);
     public Task<LikeDto?> CreateLike(string userId, int postId, LikeDto likeDto);
 

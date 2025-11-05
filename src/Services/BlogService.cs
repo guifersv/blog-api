@@ -59,9 +59,28 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         return Utils.LikeModel2Dto(createdModel);
     }
 
-    Task<PostDto> IBlogService.CreatePost(string userId, PostDto postDto)
+    public async Task<PostDto?> CreatePost(string userId, PostDto postDto)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("BlogService: Creating post.");
+        var userModel = await _repository.GetUserModelAsync(userId);
+
+        if (userModel is null)
+        {
+            _logger.LogWarning("BlogService: Can't create the post model: User doesn't exist.");
+            return null;
+        }
+
+        PostModel postModel = new()
+        {
+            User = userModel,
+            Title = postDto.Title,
+            Content = postDto.Content,
+            CreatedAt = postDto.CreatedAt,
+            UpdatedAt = postDto.UpdatedAt,
+        };
+
+        var createdModel = await _repository.CreatePostModel(userModel, postModel);
+        return Utils.PostModel2Dto(createdModel);
     }
 
     Task IBlogService.DeleteComment(int commentId)

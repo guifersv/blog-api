@@ -240,4 +240,81 @@ public class ServicesTests
         Assert.Null(returnedObject);
         repositoryMock.Verify();
     }
+
+    [Fact]
+    public async Task CreatePost_ShouldReturnPostDto_WhenUserExists()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.GetUserModelAsync(It.Is<string>(w => w == userModel.Id)).Result)
+            .Returns(userModel)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r =>
+                r.CreatePostModel(
+                    It.Is<UserModel>(u => u == userModel),
+                    It.Is<PostModel>(p =>
+                        p.User == userModel
+                        && p.Title == postModel.Title
+                        && p.Content == postModel.Content
+                        && p.CreatedAt == postModel.CreatedAt
+                        && p.UpdatedAt == postModel.UpdatedAt
+                    )
+                ).Result
+            )
+            .Returns(postModel)
+            .Verifiable(Times.Once());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        var returnedObject = await service.CreatePost(userModel.Id, Utils.PostModel2Dto(postModel));
+
+        Assert.NotNull(returnedObject);
+        Assert.IsType<PostDto>(returnedObject);
+        Assert.Equal(postModel.Title, returnedObject.Title);
+        Assert.Equal(postModel.Content, returnedObject.Content);
+        Assert.Equal(postModel.CreatedAt, returnedObject.CreatedAt);
+        Assert.Equal(postModel.UpdatedAt, returnedObject.UpdatedAt);
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task CreatePost_ShouldReturnNull_WhenUserDoesNotExist()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.GetUserModelAsync(It.Is<string>(w => w == userModel.Id)).Result)
+            .Returns((UserModel?)null)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r =>
+                r.CreatePostModel(
+                    It.Is<UserModel>(u => u == userModel),
+                    It.Is<PostModel>(p =>
+                        p.User == userModel
+                        && p.Title == postModel.Title
+                        && p.Content == postModel.Content
+                        && p.CreatedAt == postModel.CreatedAt
+                        && p.UpdatedAt == postModel.UpdatedAt
+                    )
+                ).Result
+            )
+            .Returns(postModel)
+            .Verifiable(Times.Never());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        var returnedObject = await service.CreatePost(userModel.Id, Utils.PostModel2Dto(postModel));
+
+        Assert.Null(returnedObject);
+        repositoryMock.Verify();
+    }
 }

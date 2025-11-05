@@ -19,4 +19,16 @@ public static class Utils
         LikeDto likeDto = new() { CreatedAt = likeModel.CreatedAt };
         return likeDto;
     }
+
+    public static PostDto PostModel2Dto(PostModel postModel)
+    {
+        PostDto postDto = new()
+        {
+            Title = postModel.Title,
+            Content = postModel.Content,
+            CreatedAt = postModel.CreatedAt,
+            UpdatedAt = postModel.UpdatedAt,
+        };
+        return postDto;
+    }
 }
