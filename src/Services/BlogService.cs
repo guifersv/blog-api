@@ -66,7 +66,10 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
         if (userModel is null)
         {
-            _logger.LogWarning("BlogService: Can't create the post model: User doesn't exist.");
+            _logger.LogWarning(
+                "BlogService: Can't create the post model: User with id: {userId} doesn't exist.",
+                userId
+            );
             return null;
         }
 
@@ -90,7 +93,10 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
         if (model is null)
         {
-            _logger.LogWarning("BlogService: Comment doesn't exist.");
+            _logger.LogWarning(
+                "BlogService: Comment with id: {commentId} doesn't exist.",
+                commentId
+            );
             return null;
         }
 
@@ -104,7 +110,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
         if (model is null)
         {
-            _logger.LogWarning("BlogService: Post doesn't exist.");
+            _logger.LogWarning("BlogService: Post with id: {postId} doesn't exist.", postId);
             return null;
         }
 
