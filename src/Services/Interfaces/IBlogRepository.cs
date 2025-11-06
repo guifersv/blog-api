@@ -13,6 +13,7 @@ public interface IBlogRepository
     public Task<CommentModel?> FindCommentModelById(int commentModelId);
     public Task<CommentModel?> GetCommentModelAsync(int commentModelId);
     public Task<UserModel?> GetUserModelAsync(string userId);
+    public Task<UserModel?> FindUserModelById(string userId);
     public Task<LikeModel?> FindLikeModelById(int likeModelId);
 
     public Task<PostModel> UpdatePostModel(PostModel postModel);
