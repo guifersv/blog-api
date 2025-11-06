@@ -117,24 +117,51 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         return Utils.PostModel2Dto(model);
     }
 
-    Task IBlogService.DeleteComment(int commentId)
+    public async Task DeleteComment(int commentId)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("BlogService: Removing comment.");
+        var model = await _repository.FindCommentModelById(commentId);
+
+        if (model is null)
+            _logger.LogWarning(
+                "BlogService: Comment with id: {commentId} doesn't exist.",
+                commentId
+            );
+        else
+            await _repository.DeleteCommentModel(model);
     }
 
-    Task IBlogService.DeleteLike(int likeId)
+    public async Task DeleteLike(int likeId)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("BlogService: Removing like.");
+        var model = await _repository.FindLikeModelById(likeId);
+
+        if (model is null)
+            _logger.LogWarning("BlogService: Like with id: {likeId} doesn't exist.", likeId);
+        else
+            await _repository.DeleteLikeModel(model);
     }
 
-    Task IBlogService.DeletePost(int postId)
+    public async Task DeletePost(int postId)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("BlogService: Removing post.");
+        var model = await _repository.FindPostModelById(postId);
+
+        if (model is null)
+            _logger.LogWarning("BlogService: Post with id: {postId} doesn't exist.", postId);
+        else
+            await _repository.DeletePostModel(model);
     }
 
-    Task IBlogService.DeleteUser(string userId)
+    public async Task DeleteUser(string userId)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("BlogService: Removing user.");
+        var model = await _repository.FindUserModelById(userId);
+
+        if (model is null)
+            _logger.LogWarning("BlogService: User with id: {userId} doesn't exist.", userId);
+        else
+            await _repository.DeleteUserModel(model);
     }
 
     Task<CommentDto> IBlogService.UpdateComment(CommentDto commentDto)

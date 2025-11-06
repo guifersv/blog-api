@@ -421,4 +421,218 @@ public class ServicesTests
         Assert.Null(returnedObject);
         repositoryMock.Verify();
     }
+
+    [Fact]
+    public async Task DeleteComment_ShouldCallRepository_WhenModelExists()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+        CommentModel commentModel = new()
+        {
+            Id = 1,
+            Post = postModel,
+            User = userModel,
+        };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.FindCommentModelById(It.Is<int>(w => w == commentModel.Id)).Result)
+            .Returns(commentModel)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r => r.DeleteCommentModel(It.Is<CommentModel>(w => w == commentModel)))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        await service.DeleteComment(commentModel.Id);
+
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeleteComment_ShouldNotCallRepository_WhenModelDoesNotExist()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+        CommentModel commentModel = new()
+        {
+            Id = 1,
+            Post = postModel,
+            User = userModel,
+        };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.FindCommentModelById(It.Is<int>(w => w == commentModel.Id)).Result)
+            .Returns((CommentModel?)null)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r => r.DeleteCommentModel(It.Is<CommentModel>(w => w == commentModel)))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Never());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        await service.DeleteComment(commentModel.Id);
+
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeleteLike_ShouldCallRepository_WhenModelExists()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+        LikeModel likeModel = new()
+        {
+            Id = 1,
+            Post = postModel,
+            User = userModel,
+        };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.FindLikeModelById(It.Is<int>(w => w == postModel.Id)).Result)
+            .Returns(likeModel)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r => r.DeleteLikeModel(It.Is<LikeModel>(w => w == likeModel)))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        await service.DeleteLike(likeModel.Id);
+
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeleteLike_ShouldNotCallRepository_WhenModelDoesNotExist()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+        LikeModel likeModel = new()
+        {
+            Id = 1,
+            Post = postModel,
+            User = userModel,
+        };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.FindLikeModelById(It.Is<int>(w => w == postModel.Id)).Result)
+            .Returns((LikeModel?)null)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r => r.DeleteLikeModel(It.Is<LikeModel>(w => w == likeModel)))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Never());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        await service.DeleteLike(likeModel.Id);
+
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeletePost_ShouldCallRepository_WhenModelExists()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.FindPostModelById(It.Is<int>(w => w == postModel.Id)).Result)
+            .Returns(postModel)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r => r.DeletePostModel(It.Is<PostModel>(w => w == postModel)))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        await service.DeletePost(postModel.Id);
+
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeletePost_ShouldNotCallRepository_WhenModelDoesNotExist()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.FindPostModelById(It.Is<int>(w => w == postModel.Id)).Result)
+            .Returns((PostModel?)null)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r => r.DeletePostModel(It.Is<PostModel>(w => w == postModel)))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Never());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        await service.DeletePost(postModel.Id);
+
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeleteUser_ShouldCallRepository_WhenModelExists()
+    {
+        UserModel userModel = new() { Id = "id" };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.FindUserModelById(It.Is<string>(w => w == userModel.Id)).Result)
+            .Returns(userModel)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r => r.DeleteUserModel(It.Is<UserModel>(w => w == userModel)))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        await service.DeleteUser(userModel.Id);
+
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeleteUser_ShouldNotCallRepository_WhenModelDoesNotExist()
+    {
+        UserModel userModel = new() { Id = "id" };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.FindUserModelById(It.Is<string>(w => w == userModel.Id)).Result)
+            .Returns((UserModel?)null)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r => r.DeleteUserModel(It.Is<UserModel>(w => w == userModel)))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Never());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        await service.DeleteUser(userModel.Id);
+
+        repositoryMock.Verify();
+    }
 }
