@@ -83,6 +83,34 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         return Utils.PostModel2Dto(createdModel);
     }
 
+    public async Task<CommentDto?> GetCommentAsync(int commentId)
+    {
+        _logger.LogInformation("BlogService: Retrieving comment.");
+        var model = await _repository.GetCommentModelAsync(commentId);
+
+        if (model is null)
+        {
+            _logger.LogWarning("BlogService: Comment doesn't exist.");
+            return null;
+        }
+
+        return Utils.CommentModel2Dto(model);
+    }
+
+    public async Task<PostDto?> GetPostAsync(int postId)
+    {
+        _logger.LogInformation("BlogService: Retrieving post.");
+        var model = await _repository.GetPostModelAsync(postId);
+
+        if (model is null)
+        {
+            _logger.LogWarning("BlogService: Post doesn't exist.");
+            return null;
+        }
+
+        return Utils.PostModel2Dto(model);
+    }
+
     Task IBlogService.DeleteComment(int commentId)
     {
         throw new NotImplementedException();
@@ -99,16 +127,6 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
     }
 
     Task IBlogService.DeleteUser(string userId)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<CommentDto?> IBlogService.GetCommentAsync(int commentId)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<PostDto?> IBlogService.GetPostAsync(int postId)
     {
         throw new NotImplementedException();
     }
