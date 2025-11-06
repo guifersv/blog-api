@@ -164,18 +164,46 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
             await _repository.DeleteUserModel(model);
     }
 
-    Task<CommentDto> IBlogService.UpdateComment(CommentDto commentDto)
+    public async Task<PostDto?> UpdatePost(int postId, PostDto postDto)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("BlogService: Editing post.");
+        var postModel = await _repository.FindPostModelById(postId);
+
+        if (postModel is null)
+        {
+            _logger.LogWarning("BlogService: Post with id: {postId} doesn't exist.", postId);
+            return null;
+        }
+        else
+        {
+            postModel.Title = postDto.Title;
+            postModel.Content = postDto.Content;
+            postModel.CreatedAt = postDto.CreatedAt;
+            postModel.UpdatedAt = postDto.UpdatedAt;
+            var returnedModel = await _repository.UpdatePostModel(postModel);
+            return Utils.PostModel2Dto(returnedModel);
+        }
     }
 
-    Task<PostDto> IBlogService.UpdatePost(PostDto postDto)
+    public async Task<CommentDto?> UpdateComment(int commentId, CommentDto commentDto)
     {
-        throw new NotImplementedException();
-    }
+        _logger.LogInformation("BlogService: Editing comment.");
+        var commentModel = await _repository.FindCommentModelById(commentId);
 
-    Task<UserDto> IBlogService.UpdateUser(UserDto userDto)
-    {
-        throw new NotImplementedException();
+        if (commentModel is null)
+        {
+            _logger.LogWarning(
+                "BlogService: Comment with id: {commentId} doesn't exist.",
+                commentId
+            );
+            return null;
+        }
+        else
+        {
+            commentModel.Content = commentDto.Content;
+            commentModel.CreatedAt = commentDto.CreatedAt;
+            var returnedModel = await _repository.UpdateCommentModel(commentModel);
+            return Utils.CommentModel2Dto(returnedModel);
+        }
     }
 }
