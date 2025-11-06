@@ -43,6 +43,7 @@ public class BlogRepository(BlogContext context) : IBlogRepository
         return await _context
             .Posts.Include(p => p.LikeModelNavigation)
             .Include(p => p.CommentModelNavigation)
+            .AsNoTracking()
             .FirstOrDefaultAsync(m => m.Id == postModelId);
     }
 
@@ -53,12 +54,14 @@ public class BlogRepository(BlogContext context) : IBlogRepository
 
     public async Task<CommentModel?> GetCommentModelAsync(int commentModelId)
     {
-        return await _context.Comments.FirstOrDefaultAsync(m => m.Id == commentModelId);
+        return await _context
+            .Comments.AsNoTracking()
+            .FirstOrDefaultAsync(m => m.Id == commentModelId);
     }
 
     public async Task<UserModel?> GetUserModelAsync(string userId)
     {
-        return await _context.Users.FirstOrDefaultAsync(m => m.Id == userId);
+        return await _context.Users.AsNoTracking().FirstOrDefaultAsync(m => m.Id == userId);
     }
 
     public async Task<PostModel> UpdatePostModel(PostModel postModel)
