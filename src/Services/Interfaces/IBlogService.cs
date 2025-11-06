@@ -11,8 +11,8 @@ public interface IBlogService
     public Task<PostDto?> GetPostAsync(int postId);
     public Task<CommentDto?> GetCommentAsync(int commentId);
 
-    public Task<PostDto> UpdatePost(int postId, PostDto postDto);
-    public Task<CommentDto> UpdateComment(int commentId, CommentDto commentDto);
+    public Task<PostDto?> UpdatePost(int postId, PostDto postDto);
+    public Task<CommentDto?> UpdateComment(int commentId, CommentDto commentDto);
 
     public Task DeletePost(int postId);
     public Task DeleteComment(int commentId);
