@@ -24,10 +24,15 @@ public class ServicesTests
             .Setup(r =>
                 r.CreateCommentModel(
                     It.Is<PostModel>(p => p == postModel),
-                    It.Is<CommentModel>(c => c.Post == postModel && c.User == userModel)
+                    It.Is<CommentModel>(c =>
+                        c.Post == postModel
+                        && c.User == userModel
+                        && c.Content == commentModel.Content
+                        && c.CreatedAt == commentModel.CreatedAt
+                    )
                 ).Result
             )
-            .Returns(commentModel)
+            .Returns<PostModel, CommentModel>((p, c) => c)
             .Verifiable(Times.Once());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -66,10 +71,15 @@ public class ServicesTests
             .Setup(r =>
                 r.CreateCommentModel(
                     It.Is<PostModel>(p => p == postModel),
-                    It.Is<CommentModel>(c => c.Post == postModel && c.User == userModel)
+                    It.Is<CommentModel>(c =>
+                        c.Post == postModel
+                        && c.User == userModel
+                        && c.Content == commentModel.Content
+                        && c.CreatedAt == commentModel.CreatedAt
+                    )
                 ).Result
             )
-            .Returns(commentModel)
+            .Returns<PostModel, CommentModel>((p, c) => c)
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -105,10 +115,15 @@ public class ServicesTests
             .Setup(r =>
                 r.CreateCommentModel(
                     It.Is<PostModel>(p => p == postModel),
-                    It.Is<CommentModel>(c => c.Post == postModel && c.User == userModel)
+                    It.Is<CommentModel>(c =>
+                        c.Post == postModel
+                        && c.User == userModel
+                        && c.Content == commentModel.Content
+                        && c.CreatedAt == commentModel.CreatedAt
+                    )
                 ).Result
             )
-            .Returns(commentModel)
+            .Returns<PostModel, CommentModel>((p, c) => c)
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -144,10 +159,14 @@ public class ServicesTests
             .Setup(r =>
                 r.CreateLikeModel(
                     It.Is<PostModel>(p => p == postModel),
-                    It.Is<LikeModel>(c => c.Post == postModel && c.User == userModel)
+                    It.Is<LikeModel>(c =>
+                        c.Post == postModel
+                        && c.User == userModel
+                        && c.CreatedAt == likeModel.CreatedAt
+                    )
                 ).Result
             )
-            .Returns(likeModel)
+            .Returns<PostModel, LikeModel>((p, c) => c)
             .Verifiable(Times.Once());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -185,10 +204,14 @@ public class ServicesTests
             .Setup(r =>
                 r.CreateLikeModel(
                     It.Is<PostModel>(p => p == postModel),
-                    It.Is<LikeModel>(c => c.Post == postModel && c.User == userModel)
+                    It.Is<LikeModel>(c =>
+                        c.Post == postModel
+                        && c.User == userModel
+                        && c.CreatedAt == likeModel.CreatedAt
+                    )
                 ).Result
             )
-            .Returns(likeModel)
+            .Returns<PostModel, LikeModel>((p, c) => c)
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -224,10 +247,14 @@ public class ServicesTests
             .Setup(r =>
                 r.CreateLikeModel(
                     It.Is<PostModel>(p => p == postModel),
-                    It.Is<LikeModel>(c => c.Post == postModel && c.User == userModel)
+                    It.Is<LikeModel>(c =>
+                        c.Post == postModel
+                        && c.User == userModel
+                        && c.CreatedAt == likeModel.CreatedAt
+                    )
                 ).Result
             )
-            .Returns(likeModel)
+            .Returns<PostModel, LikeModel>((p, c) => c)
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -267,7 +294,7 @@ public class ServicesTests
                     )
                 ).Result
             )
-            .Returns(postModel)
+            .Returns<UserModel, PostModel>((u, p) => p)
             .Verifiable(Times.Once());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -308,7 +335,7 @@ public class ServicesTests
                     )
                 ).Result
             )
-            .Returns(postModel)
+            .Returns<UserModel, PostModel>((u, p) => p)
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
