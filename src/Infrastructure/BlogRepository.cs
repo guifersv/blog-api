@@ -64,6 +64,11 @@ public class BlogRepository(BlogContext context) : IBlogRepository
         return await _context.Users.AsNoTracking().FirstOrDefaultAsync(m => m.Id == userId);
     }
 
+    public async Task<LikeModel?> FindLikeModelById(int likeModelId)
+    {
+        return await _context.Likes.FindAsync(likeModelId);
+    }
+
     public async Task<PostModel> UpdatePostModel(PostModel postModel)
     {
         var updatedModel = _context.Posts.Update(postModel);
