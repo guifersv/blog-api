@@ -1,6 +1,7 @@
 global using BlogApi.Application.Dtos;
 global using BlogApi.Application.Services;
 global using BlogApi.Application.Services.Interfaces;
+global using BlogApi.Controllers;
 global using BlogApi.Domain.Entities;
 global using BlogApi.Domain.Interfaces;
 global using BlogApi.Utilities;
