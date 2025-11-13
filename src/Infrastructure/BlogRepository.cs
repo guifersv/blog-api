@@ -1,5 +1,5 @@
-using BlogApi.Domain;
-using BlogApi.Services.Interfaces;
+using BlogApi.Domain.Entities;
+using BlogApi.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlogApi.Infrastructure;

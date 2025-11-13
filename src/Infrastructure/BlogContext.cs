@@ -1,4 +1,4 @@
-using BlogApi.Domain;
+using BlogApi.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

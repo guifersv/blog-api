@@ -1,8 +1,10 @@
-using BlogApi.Domain;
-using BlogApi.Services.Interfaces;
+using BlogApi.Application.Dtos;
+using BlogApi.Application.Services.Interfaces;
+using BlogApi.Domain.Entities;
+using BlogApi.Domain.Interfaces;
 using BlogApi.Utilities;
 
-namespace BlogApi.Services;
+namespace BlogApi.Application.Services;
 
 public class BlogService(ILogger<BlogService> logger, IBlogRepository repository) : IBlogService
 {

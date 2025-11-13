@@ -1,4 +1,7 @@
-using BlogApi.Domain;
+using BlogApi.Application.Services;
+using BlogApi.Application.Services.Interfaces;
+using BlogApi.Domain.Entities;
+using BlogApi.Domain.Interfaces;
 using BlogApi.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +32,9 @@ try
     builder.Services.AddDbContext<BlogContext>(options =>
         options.UseSqlServer(sqlConnectionStringBuilder.ConnectionString)
     );
+
+    builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+    builder.Services.AddScoped<IBlogService, BlogService>();
 
     builder.Services.AddIdentityApiEndpoints<UserModel>().AddEntityFrameworkStores<BlogContext>();
 

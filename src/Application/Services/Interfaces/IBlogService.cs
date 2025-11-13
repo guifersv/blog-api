@@ -1,6 +1,6 @@
-using BlogApi.Domain;
+using BlogApi.Application.Dtos;
 
-namespace BlogApi.Services.Interfaces;
+namespace BlogApi.Application.Services.Interfaces;
 
 public interface IBlogService
 {

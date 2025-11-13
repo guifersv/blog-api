@@ -1,6 +1,6 @@
-using BlogApi.Domain;
+using BlogApi.Domain.Entities;
 
-namespace BlogApi.Services.Interfaces;
+namespace BlogApi.Domain.Interfaces;
 
 public interface IBlogRepository
 {

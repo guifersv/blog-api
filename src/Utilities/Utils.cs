@@ -1,4 +1,5 @@
-using BlogApi.Domain;
+using BlogApi.Application.Dtos;
+using BlogApi.Domain.Entities;
 
 namespace BlogApi.Utilities;
 

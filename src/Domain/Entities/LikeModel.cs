@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace BlogApi.Domain;
+namespace BlogApi.Domain.Entities;
 
-public class CommentModel
+public class LikeModel
 {
     public int Id { get; set; }
 
@@ -16,13 +16,5 @@ public class CommentModel
     [DeleteBehavior(DeleteBehavior.NoAction)]
     public required PostModel Post { get; set; }
 
-    public string? Content { get; set; }
-
-    public DateTime CreatedAt { get; set; }
-}
-
-public record CommentDto
-{
-    public string? Content { get; set; }
     public DateTime CreatedAt { get; set; }
 }
