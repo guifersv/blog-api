@@ -13,13 +13,13 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
     public async Task<CommentDto?> CreateComment(string userId, int postId, CommentDto commentDto)
     {
-        _logger.LogInformation("BlogService: Creating comment.");
+        _logger.LogDebug("BlogService: Creating comment.");
         var userModel = await _repository.GetUserModelAsync(userId);
         var postModel = await _repository.GetPostModelAsync(postId);
 
         if (postModel is null || userModel is null)
         {
-            _logger.LogWarning(
+            _logger.LogDebug(
                 "BlogService: Can't create a comment model: Post or User doesn't exist."
             );
             return null;
@@ -38,13 +38,13 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
     public async Task<LikeDto?> CreateLike(string userId, int postId, LikeDto likeDto)
     {
-        _logger.LogInformation("BlogService: Creating like.");
+        _logger.LogDebug("BlogService: Creating like.");
         var userModel = await _repository.GetUserModelAsync(userId);
         var postModel = await _repository.GetPostModelAsync(postId);
 
         if (postModel is null || userModel is null)
         {
-            _logger.LogWarning(
+            _logger.LogDebug(
                 "BlogService: Can't create the like model: Post or User doesn't exist."
             );
             return null;
@@ -63,12 +63,12 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
     public async Task<PostDto?> CreatePost(string userId, PostDto postDto)
     {
-        _logger.LogInformation("BlogService: Creating post.");
+        _logger.LogDebug("BlogService: Creating post.");
         var userModel = await _repository.GetUserModelAsync(userId);
 
         if (userModel is null)
         {
-            _logger.LogWarning(
+            _logger.LogDebug(
                 "BlogService: Can't create the post model: User with id: {userId} doesn't exist.",
                 userId
             );
@@ -90,15 +90,12 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
     public async Task<CommentDto?> GetCommentAsync(int commentId)
     {
-        _logger.LogInformation("BlogService: Retrieving comment.");
+        _logger.LogDebug("BlogService: Retrieving comment.");
         var model = await _repository.GetCommentModelAsync(commentId);
 
         if (model is null)
         {
-            _logger.LogWarning(
-                "BlogService: Comment with id: {commentId} doesn't exist.",
-                commentId
-            );
+            _logger.LogDebug("BlogService: Comment with id: {commentId} doesn't exist.", commentId);
             return null;
         }
 
@@ -107,12 +104,12 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
     public async Task<PostDto?> GetPostAsync(int postId)
     {
-        _logger.LogInformation("BlogService: Retrieving post.");
+        _logger.LogDebug("BlogService: Retrieving post.");
         var model = await _repository.GetPostModelAsync(postId);
 
         if (model is null)
         {
-            _logger.LogWarning("BlogService: Post with id: {postId} doesn't exist.", postId);
+            _logger.LogDebug("BlogService: Post with id: {postId} doesn't exist.", postId);
             return null;
         }
 
@@ -121,59 +118,56 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
     public async Task DeleteComment(int commentId)
     {
-        _logger.LogInformation("BlogService: Removing comment.");
+        _logger.LogDebug("BlogService: Removing comment.");
         var model = await _repository.FindCommentModelById(commentId);
 
         if (model is null)
-            _logger.LogWarning(
-                "BlogService: Comment with id: {commentId} doesn't exist.",
-                commentId
-            );
+            _logger.LogDebug("BlogService: Comment with id: {commentId} doesn't exist.", commentId);
         else
             await _repository.DeleteCommentModel(model);
     }
 
     public async Task DeleteLike(int likeId)
     {
-        _logger.LogInformation("BlogService: Removing like.");
+        _logger.LogDebug("BlogService: Removing like.");
         var model = await _repository.FindLikeModelById(likeId);
 
         if (model is null)
-            _logger.LogWarning("BlogService: Like with id: {likeId} doesn't exist.", likeId);
+            _logger.LogDebug("BlogService: Like with id: {likeId} doesn't exist.", likeId);
         else
             await _repository.DeleteLikeModel(model);
     }
 
     public async Task DeletePost(int postId)
     {
-        _logger.LogInformation("BlogService: Removing post.");
+        _logger.LogDebug("BlogService: Removing post.");
         var model = await _repository.FindPostModelById(postId);
 
         if (model is null)
-            _logger.LogWarning("BlogService: Post with id: {postId} doesn't exist.", postId);
+            _logger.LogDebug("BlogService: Post with id: {postId} doesn't exist.", postId);
         else
             await _repository.DeletePostModel(model);
     }
 
     public async Task DeleteUser(string userId)
     {
-        _logger.LogInformation("BlogService: Removing user.");
+        _logger.LogDebug("BlogService: Removing user.");
         var model = await _repository.FindUserModelById(userId);
 
         if (model is null)
-            _logger.LogWarning("BlogService: User with id: {userId} doesn't exist.", userId);
+            _logger.LogDebug("BlogService: User with id: {userId} doesn't exist.", userId);
         else
             await _repository.DeleteUserModel(model);
     }
 
     public async Task<PostDto?> UpdatePost(int postId, PostDto postDto)
     {
-        _logger.LogInformation("BlogService: Editing post.");
+        _logger.LogDebug("BlogService: Editing post.");
         var postModel = await _repository.FindPostModelById(postId);
 
         if (postModel is null)
         {
-            _logger.LogWarning("BlogService: Post with id: {postId} doesn't exist.", postId);
+            _logger.LogDebug("BlogService: Post with id: {postId} doesn't exist.", postId);
             return null;
         }
         else
@@ -189,15 +183,12 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
     public async Task<CommentDto?> UpdateComment(int commentId, CommentDto commentDto)
     {
-        _logger.LogInformation("BlogService: Editing comment.");
+        _logger.LogDebug("BlogService: Editing comment.");
         var commentModel = await _repository.FindCommentModelById(commentId);
 
         if (commentModel is null)
         {
-            _logger.LogWarning(
-                "BlogService: Comment with id: {commentId} doesn't exist.",
-                commentId
-            );
+            _logger.LogDebug("BlogService: Comment with id: {commentId} doesn't exist.", commentId);
             return null;
         }
         else
