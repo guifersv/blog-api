@@ -5,6 +5,7 @@ using BlogApi.Domain.Interfaces;
 using BlogApi.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateBootstrapLogger();
@@ -40,13 +41,17 @@ try
 
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();
+    builder.Services.AddSwaggerGen(c =>
+        c.SwaggerDoc("v1", new OpenApiInfo { Title = "BlogApi", Version = "v1" })
+    );
 
     var app = builder.Build();
 
     if (app.Environment.IsDevelopment())
     {
         app.MapOpenApi();
-        app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
+        app.UseSwagger();
+        app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BlogApi v1"));
     }
 
     app.UseHttpsRedirection();
