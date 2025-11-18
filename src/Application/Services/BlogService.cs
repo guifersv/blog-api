@@ -11,7 +11,11 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
     private readonly ILogger<BlogService> _logger = logger;
     private readonly IBlogRepository _repository = repository;
 
-    public async Task<CommentDto?> CreateComment(string userId, int postId, CommentDto commentDto)
+    public async Task<ValueTuple<int, CommentDto>?> CreateComment(
+        string userId,
+        int postId,
+        CommentDto commentDto
+    )
     {
         _logger.LogDebug("BlogService: Creating comment.");
         var userModel = await _repository.GetUserModelAsync(userId);
@@ -33,10 +37,14 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
             CreatedAt = commentDto.CreatedAt,
         };
         var createdModel = await _repository.CreateCommentModel(postModel, commentModel);
-        return Utils.CommentModel2Dto(createdModel);
+        return (createdModel.Id, Utils.CommentModel2Dto(createdModel));
     }
 
-    public async Task<LikeDto?> CreateLike(string userId, int postId, LikeDto likeDto)
+    public async Task<ValueTuple<int, LikeDto>?> CreateLike(
+        string userId,
+        int postId,
+        LikeDto likeDto
+    )
     {
         _logger.LogDebug("BlogService: Creating like.");
         var userModel = await _repository.GetUserModelAsync(userId);
@@ -58,10 +66,10 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         };
 
         var createdModel = await _repository.CreateLikeModel(postModel, likeModel);
-        return Utils.LikeModel2Dto(createdModel);
+        return (createdModel.Id, Utils.LikeModel2Dto(createdModel));
     }
 
-    public async Task<PostDto?> CreatePost(string userId, PostDto postDto)
+    public async Task<ValueTuple<int, PostDto>?> CreatePost(string userId, PostDto postDto)
     {
         _logger.LogDebug("BlogService: Creating post.");
         var userModel = await _repository.GetUserModelAsync(userId);
@@ -82,7 +90,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         };
 
         var createdModel = await _repository.CreatePostModel(userModel, postModel);
-        return Utils.PostModel2Dto(createdModel);
+        return (createdModel.Id, Utils.PostModel2Dto(createdModel));
     }
 
     public async Task<CommentDto?> GetCommentAsync(int commentId)

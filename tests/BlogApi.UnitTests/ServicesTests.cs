@@ -3,7 +3,7 @@ namespace BlogApi.UnitTests;
 public class ServicesTests
 {
     [Fact]
-    public async Task CreateComment_ShouldReturnCommentDto_WhenPostAndUserExists()
+    public async Task CreateComment_ShouldReturnTupleWithIdAndDto_WhenPostAndUserExists()
     {
         UserModel userModel = new() { Id = "id" };
         PostModel postModel = new() { User = userModel, Id = 1 };
@@ -43,9 +43,10 @@ public class ServicesTests
         );
 
         Assert.NotNull(returnedObject);
-        Assert.IsType<CommentDto>(returnedObject);
-        Assert.Equal(commentModel.CreatedAt, returnedObject.CreatedAt);
-        Assert.Equal(commentModel.Content, returnedObject.Content);
+        Assert.IsType<ValueTuple<int, CommentDto>>(returnedObject);
+        var model = returnedObject.Value.Item2;
+        Assert.Equal(commentModel.CreatedAt, model.CreatedAt);
+        Assert.Equal(commentModel.Content, model.Content);
         repositoryMock.Verify();
     }
 
@@ -138,7 +139,7 @@ public class ServicesTests
     }
 
     [Fact]
-    public async Task CreateLike_ShouldReturnLikeDto_WhenPostAndUserExists()
+    public async Task CreateLike_ShouldReturnTupleWithIdAndDto_WhenPostAndUserExists()
     {
         UserModel userModel = new() { Id = "id" };
         PostModel postModel = new() { User = userModel, Id = 1 };
@@ -177,8 +178,9 @@ public class ServicesTests
         );
 
         Assert.NotNull(returnedObject);
-        Assert.IsType<LikeDto>(returnedObject);
-        Assert.Equal(likeModel.CreatedAt, returnedObject.CreatedAt);
+        Assert.IsType<ValueTuple<int, LikeDto>>(returnedObject);
+        var model = returnedObject.Value.Item2;
+        Assert.Equal(likeModel.CreatedAt, model.CreatedAt);
         repositoryMock.Verify();
     }
 
@@ -269,7 +271,7 @@ public class ServicesTests
     }
 
     [Fact]
-    public async Task CreatePost_ShouldReturnPostDto_WhenUserExists()
+    public async Task CreatePost_ShouldReturnTupleWithIdAndDto_WhenUserExists()
     {
         UserModel userModel = new() { Id = "id" };
         PostModel postModel = new() { User = userModel, Id = 1 };
@@ -301,11 +303,12 @@ public class ServicesTests
         var returnedObject = await service.CreatePost(userModel.Id, Utils.PostModel2Dto(postModel));
 
         Assert.NotNull(returnedObject);
-        Assert.IsType<PostDto>(returnedObject);
-        Assert.Equal(postModel.Title, returnedObject.Title);
-        Assert.Equal(postModel.Content, returnedObject.Content);
-        Assert.Equal(postModel.CreatedAt, returnedObject.CreatedAt);
-        Assert.Equal(postModel.UpdatedAt, returnedObject.UpdatedAt);
+        Assert.IsType<ValueTuple<int, PostDto>>(returnedObject);
+        var model = returnedObject.Value.Item2;
+        Assert.Equal(postModel.Title, model.Title);
+        Assert.Equal(postModel.Content, model.Content);
+        Assert.Equal(postModel.CreatedAt, model.CreatedAt);
+        Assert.Equal(postModel.UpdatedAt, model.UpdatedAt);
         repositoryMock.Verify();
     }
 
