@@ -26,7 +26,7 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
 
         if (commentModel is null)
         {
-            _logger.LogWarning("ApiController: The Comment with id: {id} doesn't exist.", id);
+            _logger.LogWarning("ApiController: The Comment doesn't exist.");
             return NotFound();
         }
         else
@@ -45,7 +45,7 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
 
         if (postModel is null)
         {
-            _logger.LogWarning("ApiController: The Post with id: {id} doesn't exist.", id);
+            _logger.LogWarning("ApiController: The Post doesn't exist.");
             return NotFound();
         }
         else

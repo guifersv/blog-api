@@ -68,10 +68,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
         if (userModel is null)
         {
-            _logger.LogDebug(
-                "BlogService: Can't create the post model: User with id: {userId} doesn't exist.",
-                userId
-            );
+            _logger.LogDebug("BlogService: Can't create the post model: User doesn't exist.");
             return null;
         }
 
@@ -95,7 +92,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
         if (model is null)
         {
-            _logger.LogDebug("BlogService: Comment with id: {commentId} doesn't exist.", commentId);
+            _logger.LogDebug("BlogService: Comment doesn't exist.");
             return null;
         }
 
@@ -109,7 +106,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
         if (model is null)
         {
-            _logger.LogDebug("BlogService: Post with id: {postId} doesn't exist.", postId);
+            _logger.LogDebug("BlogService: Post doesn't exist.");
             return null;
         }
 
@@ -122,7 +119,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         var model = await _repository.FindCommentModelById(commentId);
 
         if (model is null)
-            _logger.LogDebug("BlogService: Comment with id: {commentId} doesn't exist.", commentId);
+            _logger.LogDebug("BlogService: Comment doesn't exist.");
         else
             await _repository.DeleteCommentModel(model);
     }
@@ -133,7 +130,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         var model = await _repository.FindLikeModelById(likeId);
 
         if (model is null)
-            _logger.LogDebug("BlogService: Like with id: {likeId} doesn't exist.", likeId);
+            _logger.LogDebug("BlogService: Like doesn't exist.");
         else
             await _repository.DeleteLikeModel(model);
     }
@@ -144,7 +141,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         var model = await _repository.FindPostModelById(postId);
 
         if (model is null)
-            _logger.LogDebug("BlogService: Post with id: {postId} doesn't exist.", postId);
+            _logger.LogDebug("BlogService: Post doesn't exist.");
         else
             await _repository.DeletePostModel(model);
     }
@@ -155,7 +152,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         var model = await _repository.FindUserModelById(userId);
 
         if (model is null)
-            _logger.LogDebug("BlogService: User with id: {userId} doesn't exist.", userId);
+            _logger.LogDebug("BlogService: User doesn't exist.");
         else
             await _repository.DeleteUserModel(model);
     }
@@ -167,7 +164,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
         if (postModel is null)
         {
-            _logger.LogDebug("BlogService: Post with id: {postId} doesn't exist.", postId);
+            _logger.LogDebug("BlogService: Post doesn't exist.");
             return null;
         }
         else
@@ -188,7 +185,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
         if (commentModel is null)
         {
-            _logger.LogDebug("BlogService: Comment with id: {commentId} doesn't exist.", commentId);
+            _logger.LogDebug("BlogService: Comment doesn't exist.");
             return null;
         }
         else
