@@ -24,14 +24,6 @@ try
                 .WriteTo.Console()
     );
 
-    builder
-        .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            options.Authority = "http://localhost:5127";
-            options.Audience = "http://localhost:5127";
-        });
-
     SqlConnectionStringBuilder sqlConnectionStringBuilder = new(
         builder.Configuration.GetConnectionString("BlogContext")
     )
@@ -49,7 +41,18 @@ try
     builder.Services.AddIdentityApiEndpoints<UserModel>().AddEntityFrameworkStores<BlogContext>();
 
     builder.Services.AddControllers();
+
+    builder
+        .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.Authority = "http://localhost:5127";
+            options.Audience = "http://localhost:5127";
+            options.RequireHttpsMetadata = false;
+        });
+
     builder.Services.AddOpenApi();
+
     builder.Services.AddSwaggerGen(options =>
     {
         options.SwaggerDoc("v1", new OpenApiInfo { Title = "BlogApi", Version = "v1" });
@@ -75,7 +78,7 @@ try
     {
         app.MapOpenApi();
         app.UseSwagger();
-        app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BlogApi v1"));
+        app.UseSwaggerUI(c => c.SwaggerEndpoint("v1/swagger.json", "BlogApi v1"));
     }
 
     app.UseHttpsRedirection();
