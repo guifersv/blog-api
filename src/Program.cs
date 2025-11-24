@@ -3,6 +3,7 @@ using BlogApi.Application.Services.Interfaces;
 using BlogApi.Domain.Entities;
 using BlogApi.Domain.Interfaces;
 using BlogApi.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
@@ -23,6 +24,14 @@ try
                 .WriteTo.Console()
     );
 
+    builder
+        .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.Authority = "http://localhost:5127";
+            options.Audience = "http://localhost:5127";
+        });
+
     SqlConnectionStringBuilder sqlConnectionStringBuilder = new(
         builder.Configuration.GetConnectionString("BlogContext")
     )
@@ -41,9 +50,24 @@ try
 
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();
-    builder.Services.AddSwaggerGen(c =>
-        c.SwaggerDoc("v1", new OpenApiInfo { Title = "BlogApi", Version = "v1" })
-    );
+    builder.Services.AddSwaggerGen(options =>
+    {
+        options.SwaggerDoc("v1", new OpenApiInfo { Title = "BlogApi", Version = "v1" });
+        options.AddSecurityDefinition(
+            "bearer",
+            new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                Description = "JWT Authorization header using the Bearer scheme.",
+            }
+        );
+        options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("bearer", document)] = [],
+        });
+    });
 
     var app = builder.Build();
 
