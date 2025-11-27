@@ -1,6 +1,8 @@
 using System.Net.Mime;
+using System.Security.Claims;
 using BlogApi.Application.Dtos;
 using BlogApi.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlogApi.Controllers;
@@ -8,6 +10,7 @@ namespace BlogApi.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
+[Consumes(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 public class ApiController(IBlogService service, ILogger<ApiController> logger) : ControllerBase
 {
@@ -30,7 +33,9 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
             return NotFound();
         }
         else
+        {
             return commentModel;
+        }
     }
 
     [HttpGet("post/{id}")]
@@ -49,6 +54,32 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
             return NotFound();
         }
         else
+        {
             return postModel;
+        }
+    }
+
+    [Authorize]
+    [HttpPost("post")]
+    [EndpointSummary("Create Post")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> CreatePost(PostDto post)
+    {
+        _logger.LogInformation("ApiController: Creating Post.");
+        var nameIdentifier = HttpContext.User.Claims.FirstOrDefault(c =>
+            c.Type == ClaimTypes.NameIdentifier
+        );
+        if (nameIdentifier is not null)
+        {
+            var createdModel = await _service.CreatePost(nameIdentifier.Value, post);
+            return CreatedAtAction(
+                nameof(GetPost),
+                new { id = createdModel.Value.Item1 },
+                createdModel.Value.Item2
+            );
+        }
+        _logger.LogWarning("ApiController: Can't create Post.");
+        return BadRequest();
     }
 }
