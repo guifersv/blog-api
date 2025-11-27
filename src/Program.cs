@@ -3,7 +3,8 @@ using BlogApi.Application.Services.Interfaces;
 using BlogApi.Domain.Entities;
 using BlogApi.Domain.Interfaces;
 using BlogApi.Infrastructure;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
@@ -14,6 +15,16 @@ Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateBootstrapLogger()
 try
 {
     var builder = WebApplication.CreateBuilder(args);
+
+    builder.Services.ConfigureApplicationCookie(options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(2);
+        options.SlidingExpiration = true;
+    });
+
+    builder
+        .Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        .AddCookie();
 
     builder.Services.AddSerilog(
         (services, ls) =>
@@ -42,35 +53,11 @@ try
 
     builder.Services.AddControllers();
 
-    builder
-        .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            options.Authority = "http://localhost:5127";
-            options.Audience = "http://localhost:5127";
-            options.RequireHttpsMetadata = false;
-        });
-
     builder.Services.AddOpenApi();
 
     builder.Services.AddSwaggerGen(options =>
-    {
-        options.SwaggerDoc("v1", new OpenApiInfo { Title = "BlogApi", Version = "v1" });
-        options.AddSecurityDefinition(
-            "bearer",
-            new OpenApiSecurityScheme
-            {
-                Type = SecuritySchemeType.Http,
-                Scheme = "bearer",
-                BearerFormat = "JWT",
-                Description = "JWT Authorization header using the Bearer scheme.",
-            }
-        );
-        options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
-        {
-            [new OpenApiSecuritySchemeReference("bearer", document)] = [],
-        });
-    });
+        options.SwaggerDoc("v1", new OpenApiInfo { Title = "BlogApi", Version = "v1" })
+    );
 
     var app = builder.Build();
 
