@@ -32,7 +32,7 @@ public class ServicesTests
                     )
                 ).Result
             )
-            .Returns<PostModel, CommentModel>((p, c) => c)
+            .Returns<PostModel, CommentModel>((_, c) => c)
             .Verifiable(Times.Once());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -80,7 +80,7 @@ public class ServicesTests
                     )
                 ).Result
             )
-            .Returns<PostModel, CommentModel>((p, c) => c)
+            .Returns<PostModel, CommentModel>((_, c) => c)
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -124,7 +124,7 @@ public class ServicesTests
                     )
                 ).Result
             )
-            .Returns<PostModel, CommentModel>((p, c) => c)
+            .Returns<PostModel, CommentModel>((_, c) => c)
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -167,7 +167,7 @@ public class ServicesTests
                     )
                 ).Result
             )
-            .Returns<PostModel, LikeModel>((p, c) => c)
+            .Returns<PostModel, LikeModel>((_, c) => c)
             .Verifiable(Times.Once());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -213,7 +213,7 @@ public class ServicesTests
                     )
                 ).Result
             )
-            .Returns<PostModel, LikeModel>((p, c) => c)
+            .Returns<PostModel, LikeModel>((_, c) => c)
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -256,7 +256,7 @@ public class ServicesTests
                     )
                 ).Result
             )
-            .Returns<PostModel, LikeModel>((p, c) => c)
+            .Returns<PostModel, LikeModel>((_, c) => c)
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -296,7 +296,7 @@ public class ServicesTests
                     )
                 ).Result
             )
-            .Returns<UserModel, PostModel>((u, p) => p)
+            .Returns<UserModel, PostModel>((_, p) => p)
             .Verifiable(Times.Once());
 
         var service = new BlogService(logger, repositoryMock.Object);
@@ -338,7 +338,7 @@ public class ServicesTests
                     )
                 ).Result
             )
-            .Returns<UserModel, PostModel>((u, p) => p)
+            .Returns<UserModel, PostModel>((_, p) => p)
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
