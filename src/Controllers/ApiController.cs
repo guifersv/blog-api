@@ -105,4 +105,25 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         _logger.LogWarning("ApiController: Can't create Post.");
         return BadRequest();
     }
+
+    [Authorize]
+    [HttpPost("like/{postId}")]
+    [EndpointSummary("Create Like")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> CreateLike(int postId, LikeDto like)
+    {
+        _logger.LogInformation("ApiController: Creating Like.");
+        var nameIdentifier = HttpContext.User.Claims.FirstOrDefault(c =>
+            c.Type == ClaimTypes.NameIdentifier
+        );
+        if (nameIdentifier is not null)
+        {
+            var createdModel = await _service.CreateLike(nameIdentifier.Value, postId, like);
+            if (createdModel is not null)
+                return Created();
+        }
+        _logger.LogWarning("ApiController: Can't create Like.");
+        return BadRequest();
+    }
 }

@@ -244,4 +244,112 @@ public class ControllersTests
         Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();
     }
+
+    [Fact]
+    public async Task CreateLike_ShouldReturnCreated_WhenNameIdentifierAndUserExists()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+        LikeDto likeDto = new();
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.CreateLike(
+                    It.Is<string>(t => t == claim.Value),
+                    It.IsAny<int>(),
+                    It.Is<LikeDto>(p => p.CreatedAt == postDto.CreatedAt)
+                ).Result
+            )
+            .Returns((1, likeDto))
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.CreateLike(1, likeDto);
+
+        var resultObjet = Assert.IsType<CreatedResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task CreateLike_ShouldReturnBadRequest_WhenNameIdentifierDoesNotExist()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+        LikeDto likeDto = new();
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity()),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.CreateLike(
+                    It.Is<string>(t => t == claim.Value),
+                    It.IsAny<int>(),
+                    It.Is<LikeDto>(p => p.CreatedAt == postDto.CreatedAt)
+                ).Result
+            )
+            .Returns((1, likeDto))
+            .Verifiable(Times.Never());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.CreateLike(1, likeDto);
+
+        var resultObjet = Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task CreateLike_ShouldReturnBadRequest_WhenUserDoesNotExist()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+        LikeDto likeDto = new();
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.CreateLike(
+                    It.Is<string>(t => t == claim.Value),
+                    It.IsAny<int>(),
+                    It.Is<LikeDto>(p => p.CreatedAt == postDto.CreatedAt)
+                ).Result
+            )
+            .Returns((ValueTuple<int, LikeDto>?)null)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.CreateLike(1, likeDto);
+
+        var resultObjet = Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
 }
