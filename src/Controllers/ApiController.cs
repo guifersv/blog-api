@@ -73,11 +73,14 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         if (nameIdentifier is not null)
         {
             var createdModel = await _service.CreatePost(nameIdentifier.Value, post);
-            return CreatedAtAction(
-                nameof(GetPost),
-                new { id = createdModel.Value.Item1 },
-                createdModel.Value.Item2
-            );
+            if (createdModel is not null)
+            {
+                return CreatedAtAction(
+                    nameof(GetPost),
+                    new { id = createdModel.Value.Item1 },
+                    createdModel.Value.Item2
+                );
+            }
         }
         _logger.LogWarning("ApiController: Can't create Post.");
         return BadRequest();
