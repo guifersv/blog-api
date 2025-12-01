@@ -93,6 +93,20 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         return (createdModel.Id, Utils.PostModel2Dto(createdModel));
     }
 
+    public async Task<IEnumerable<LikeDto>?> GetLikesFromPostAsync(int postId)
+    {
+        _logger.LogDebug("BlogService: Retrieving Likes.");
+        var model = await _repository.GetPostModelAsync(postId);
+
+        if (model is null)
+        {
+            _logger.LogDebug("BlogService: Post doesn't exist.");
+            return null;
+        }
+
+        return [.. model.LikeModelNavigation.Select(Utils.LikeModel2Dto)];
+    }
+
     public async Task<CommentDto?> GetCommentAsync(int commentId)
     {
         _logger.LogDebug("BlogService: Retrieving comment.");

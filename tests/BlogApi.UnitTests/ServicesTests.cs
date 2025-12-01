@@ -453,6 +453,33 @@ public class ServicesTests
     }
 
     [Fact]
+    public async Task GetLikesFromPostAsync_ShouldReturnLikesDto_WhenPostExists()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+        LikeModel likeModel = new() { User = userModel, Post = postModel };
+
+        postModel.LikeModelNavigation = [likeModel];
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.GetPostModelAsync(It.Is<int>(w => w == postModel.Id)).Result)
+            .Returns(postModel)
+            .Verifiable(Times.Once());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        var returnedObject = await service.GetLikesFromPostAsync(postModel.Id);
+
+        Assert.NotNull(returnedObject);
+        var element = Assert.Single(returnedObject);
+        Assert.IsType<LikeDto>(element);
+        Assert.Equal(likeModel.CreatedAt, element.CreatedAt);
+        repositoryMock.Verify();
+    }
+
+    [Fact]
     public async Task DeleteComment_ShouldCallRepository_WhenModelExists()
     {
         UserModel userModel = new() { Id = "id" };

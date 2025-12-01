@@ -85,6 +85,47 @@ public class ControllersTests
     }
 
     [Fact]
+    public async Task GetPostLikes_ShouldReturnLikes_WhenPostExists()
+    {
+        PostDto postDto = new() { Content = "content" };
+        List<LikeDto> likes = [];
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s => s.GetLikesFromPostAsync(It.IsAny<int>()).Result)
+            .Returns(likes)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger);
+        var result = await controller.GetPostLikes(1);
+
+        Assert.IsType<List<LikeDto>>(result.Value);
+        Assert.Empty(result.Value);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task GetPostLikes_ShouldReturnNotFound_WhenPostDoesNotExist()
+    {
+        PostDto postDto = new() { Content = "content" };
+        List<LikeDto> likes = [];
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s => s.GetLikesFromPostAsync(It.IsAny<int>()).Result)
+            .Returns((List<LikeDto>?)null)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger);
+        var result = await controller.GetPostLikes(1);
+
+        Assert.IsType<NotFoundResult>(result.Result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
     public async Task CreatePost_ShouldReturnCreatedAtAction_WhenNameIdentifierAndUserExists()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");

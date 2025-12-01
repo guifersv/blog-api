@@ -59,6 +59,26 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         }
     }
 
+    [HttpGet("like/{postId}")]
+    [EndpointSummary("Get Likes from a Post")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<LikeDto>>> GetPostLikes(int postId)
+    {
+        _logger.LogInformation("ApiController: Retrieving Likes from the Post.");
+        var likes = await _service.GetLikesFromPostAsync(postId);
+
+        if (likes is null)
+        {
+            _logger.LogWarning("ApiController: Can't retrieve likes.");
+            return NotFound();
+        }
+        else
+        {
+            return likes.ToList();
+        }
+    }
+
     [Authorize]
     [HttpPost("post")]
     [EndpointSummary("Create Post")]
