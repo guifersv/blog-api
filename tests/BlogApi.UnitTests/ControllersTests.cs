@@ -197,7 +197,7 @@ public class ControllersTests
         var resultObjet = Assert.IsType<CreatedAtActionResult>(result);
         Assert.Equal(nameof(ApiController.GetPost), resultObjet.ActionName);
         Assert.Equal(postDto, resultObjet.Value);
-        Assert.Equal(1, resultObjet.RouteValues?.First(m => m.Key == "id").Value);
+        Assert.Equal(1, resultObjet.RouteValues?.First(m => m.Key == "postId").Value);
         serviceMock.Verify();
     }
 
@@ -280,7 +280,7 @@ public class ControllersTests
     }
 
     [Fact]
-    public async Task CreateLike_ShouldReturnCreated_WhenNameIdentifierAndUserExists()
+    public async Task CreateLike_ShouldReturnCreatedAtAction_WhenNameIdentifierAndUserExists()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
         PostDto postDto = new() { Content = "content" };
@@ -311,7 +311,10 @@ public class ControllersTests
         };
         var result = await controller.CreateLike(1, likeDto);
 
-        var resultObjet = Assert.IsType<CreatedResult>(result);
+        var resultObjet = Assert.IsType<CreatedAtActionResult>(result);
+        Assert.Equal(nameof(ApiController.GetLike), resultObjet.ActionName);
+        Assert.Equal(likeDto, resultObjet.Value);
+        Assert.Equal(1, resultObjet.RouteValues?.First(m => m.Key == "likeId").Value);
         serviceMock.Verify();
     }
 
@@ -352,7 +355,7 @@ public class ControllersTests
     }
 
     [Fact]
-    public async Task CreateLike_ShouldReturnBadRequest_WhenUserDoesNotExist()
+    public async Task CreateLike_ShouldReturnBadRequest_WhenUserOrPostDoesNotExist()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
         PostDto postDto = new() { Content = "content" };
@@ -384,6 +387,123 @@ public class ControllersTests
         var result = await controller.CreateLike(1, likeDto);
 
         var resultObjet = Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task CreateComment_ShouldReturnCreatedAtAction_WhenNameIdentifierAndUserExists()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+        CommentDto commentDto = new();
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.CreateComment(
+                    It.Is<string>(t => t == claim.Value),
+                    It.IsAny<int>(),
+                    It.Is<CommentDto>(c =>
+                        c.CreatedAt == commentDto.CreatedAt && c.Content == commentDto.Content
+                    )
+                ).Result
+            )
+            .Returns((1, commentDto))
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.CreateComment(1, commentDto);
+
+        var resultObjet = Assert.IsType<CreatedAtActionResult>(result);
+        Assert.Equal(nameof(ApiController.GetComment), resultObjet.ActionName);
+        Assert.Equal(commentDto, resultObjet.Value);
+        Assert.Equal(1, resultObjet.RouteValues?.First(m => m.Key == "commentId").Value);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task CreateComment_ShouldReturnBadRequest_WhenNameIdentifierDoesNotExist()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+        CommentDto commentDto = new();
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.CreateComment(
+                    It.Is<string>(t => t == claim.Value),
+                    It.IsAny<int>(),
+                    It.Is<CommentDto>(c =>
+                        c.CreatedAt == commentDto.CreatedAt && c.Content == commentDto.Content
+                    )
+                ).Result
+            )
+            .Returns((1, commentDto))
+            .Verifiable(Times.Never());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.CreateComment(1, commentDto);
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task CreateComment_ShouldReturnBadRequest_WhenUserOrPostDoesNotExist()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+        CommentDto commentDto = new();
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.CreateComment(
+                    It.Is<string>(t => t == claim.Value),
+                    It.IsAny<int>(),
+                    It.Is<CommentDto>(c =>
+                        c.CreatedAt == commentDto.CreatedAt && c.Content == commentDto.Content
+                    )
+                ).Result
+            )
+            .Returns((ValueTuple<int, CommentDto>?)null)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.CreateComment(1, commentDto);
+
+        Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();
     }
 }

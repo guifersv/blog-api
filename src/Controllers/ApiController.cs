@@ -138,7 +138,7 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
             {
                 return CreatedAtAction(
                     nameof(GetPost),
-                    new { id = createdModel.Value.Item1 },
+                    new { postId = createdModel.Value.Item1 },
                     createdModel.Value.Item2
                 );
             }
@@ -162,9 +162,42 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         {
             var createdModel = await _service.CreateLike(nameIdentifier.Value, postId, like);
             if (createdModel is not null)
-                return Created();
+            {
+                return CreatedAtAction(
+                    nameof(GetLike),
+                    new { likeId = createdModel.Value.Item1 },
+                    createdModel.Value.Item2
+                );
+            }
         }
         _logger.LogWarning("ApiController: Can't create Like.");
+        return BadRequest();
+    }
+
+    [Authorize]
+    [HttpPost("comment/{postId}")]
+    [EndpointSummary("Create Comment")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> CreateComment(int postId, CommentDto comment)
+    {
+        _logger.LogInformation("ApiController: Creating Comment.");
+        var nameIdentifier = HttpContext.User.Claims.FirstOrDefault(c =>
+            c.Type == ClaimTypes.NameIdentifier
+        );
+        if (nameIdentifier is not null)
+        {
+            var createdModel = await _service.CreateComment(nameIdentifier.Value, postId, comment);
+            if (createdModel is not null)
+            {
+                return CreatedAtAction(
+                    nameof(GetComment),
+                    new { commentId = createdModel.Value.Item1 },
+                    createdModel.Value.Item2
+                );
+            }
+        }
+        _logger.LogWarning("ApiController: Can't create Comment.");
         return BadRequest();
     }
 }
