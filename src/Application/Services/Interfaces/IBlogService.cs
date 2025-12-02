@@ -25,4 +25,6 @@ public interface IBlogService
     public Task DeleteComment(int commentId);
     public Task DeleteLike(int likeId);
     public Task DeleteUser(string userId);
+
+    public Task<string?> GetPostOwner(int postId);
 }
