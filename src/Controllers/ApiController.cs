@@ -17,15 +17,15 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
     private readonly IBlogService _service = service;
     private readonly ILogger<ApiController> _logger = logger;
 
-    [HttpGet("post/{id}")]
+    [HttpGet("post/{postId}")]
     [ActionName(nameof(GetPost))]
     [EndpointSummary("Get Post from id")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<PostDto>> GetPost(int id)
+    public async Task<ActionResult<PostDto>> GetPost(int postId)
     {
         _logger.LogInformation("ApiController: Retrieving Post.");
-        var postModel = await _service.GetPostAsync(id);
+        var postModel = await _service.GetPostAsync(postId);
 
         if (postModel is null)
         {
@@ -78,15 +78,15 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         }
     }
 
-    [HttpGet("comment/{id}")]
+    [HttpGet("comment/{commentId}")]
     [ActionName(nameof(GetComment))]
     [EndpointSummary("Get Comment from id")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<CommentDto>> GetComment(int id)
+    public async Task<ActionResult<CommentDto>> GetComment(int commentId)
     {
         _logger.LogInformation("ApiController: Retrieving Comment.");
-        var commentModel = await _service.GetCommentAsync(id);
+        var commentModel = await _service.GetCommentAsync(commentId);
 
         if (commentModel is null)
         {
@@ -99,15 +99,15 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         }
     }
 
-    [HttpGet("like/{id}")]
+    [HttpGet("like/{likeId}")]
     [ActionName(nameof(GetLike))]
     [EndpointSummary("Get Like from id")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<LikeDto>> GetLike(int id)
+    public async Task<ActionResult<LikeDto>> GetLike(int likeId)
     {
         _logger.LogInformation("ApiController: Retrieving Like.");
-        var likeModel = await _service.GetLikeAsync(id);
+        var likeModel = await _service.GetLikeAsync(likeId);
 
         if (likeModel is null)
         {
