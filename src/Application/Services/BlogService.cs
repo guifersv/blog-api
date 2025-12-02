@@ -246,4 +246,10 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         else
             await _repository.DeleteUserModel(model);
     }
+
+    public async Task<string?> GetPostOwner(int postId)
+    {
+        var post = await _repository.GetPostModelAsync(postId);
+        return post?.User.Id;
+    }
 }

@@ -970,4 +970,47 @@ public class ServicesTests
 
         repositoryMock.Verify();
     }
+
+    [Fact]
+    public async Task GetPostOwner_ShouldReturnUserId_WhenPostExists()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.GetPostModelAsync(It.Is<int>(w => w == postModel.Id)).Result)
+            .Returns(postModel)
+            .Verifiable(Times.Once());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        var result = await service.GetPostOwner(postModel.Id);
+
+        Assert.NotNull(result);
+        Assert.Equal(userModel.Id, result);
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task GetPostOwner_ShouldReturnNull_WhenPostDoesNotExist()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.GetPostModelAsync(It.Is<int>(w => w == postModel.Id)).Result)
+            .Returns((PostModel?)null)
+            .Verifiable(Times.Once());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        var result = await service.GetPostOwner(postModel.Id);
+
+        Assert.Null(result);
+        repositoryMock.Verify();
+    }
 }
