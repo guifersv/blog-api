@@ -29,7 +29,6 @@ public class ControllersTests
     [Fact]
     public async Task GetPost_ShouldReturnNotFound_WhenModelDoesNotExist()
     {
-        PostDto postDto = new() { Content = "content" };
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var serviceMock = new Mock<IBlogService>();
@@ -69,8 +68,6 @@ public class ControllersTests
     [Fact]
     public async Task GetPostLikes_ShouldReturnNotFound_WhenPostDoesNotExist()
     {
-        PostDto postDto = new() { Content = "content" };
-        List<LikeDto> likes = [];
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var serviceMock = new Mock<IBlogService>();
@@ -81,6 +78,44 @@ public class ControllersTests
 
         var controller = new ApiController(serviceMock.Object, logger);
         var result = await controller.GetPostLikes(1);
+
+        Assert.IsType<NotFoundResult>(result.Result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task GetPostComments_ShouldReturnComments_WhenPostExists()
+    {
+        List<CommentDto> comments = [];
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s => s.GetCommentsFromPostAsync(It.IsAny<int>()).Result)
+            .Returns(comments)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger);
+        var result = await controller.GetPostComments(1);
+
+        Assert.IsType<List<CommentDto>>(result.Value);
+        Assert.Empty(result.Value);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task GetPostComments_ShouldReturnNotFound_WhenPostDoesNotExist()
+    {
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s => s.GetCommentsFromPostAsync(It.IsAny<int>()).Result)
+            .Returns((List<CommentDto>?)null)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger);
+        var result = await controller.GetPostComments(1);
 
         Assert.IsType<NotFoundResult>(result.Result);
         serviceMock.Verify();
@@ -109,7 +144,6 @@ public class ControllersTests
     [Fact]
     public async Task GetComment_ShouldReturnNotFound_WhenModelDoesNotExist()
     {
-        CommentDto commentDto = new() { Content = "content" };
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var serviceMock = new Mock<IBlogService>();

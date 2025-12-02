@@ -17,27 +17,6 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
     private readonly IBlogService _service = service;
     private readonly ILogger<ApiController> _logger = logger;
 
-    [HttpGet("comment/{id}")]
-    [ActionName(nameof(GetComment))]
-    [EndpointSummary("Get Comment from id")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<CommentDto>> GetComment(int id)
-    {
-        _logger.LogInformation("ApiController: Retrieving Comment.");
-        var commentModel = await _service.GetCommentAsync(id);
-
-        if (commentModel is null)
-        {
-            _logger.LogWarning("ApiController: The Comment doesn't exist.");
-            return NotFound();
-        }
-        else
-        {
-            return commentModel;
-        }
-    }
-
     [HttpGet("post/{id}")]
     [ActionName(nameof(GetPost))]
     [EndpointSummary("Get Post from id")]
@@ -59,7 +38,7 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         }
     }
 
-    [HttpGet("like/{postId}")]
+    [HttpGet("post/{postId}/likes")]
     [EndpointSummary("Get Likes from a Post")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -76,6 +55,68 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         else
         {
             return likes.ToList();
+        }
+    }
+
+    [HttpGet("post/{postId}/comments")]
+    [EndpointSummary("Get Comments from a Post")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<CommentDto>>> GetPostComments(int postId)
+    {
+        _logger.LogInformation("ApiController: Retrieving Comments from the Post.");
+        var comments = await _service.GetCommentsFromPostAsync(postId);
+
+        if (comments is null)
+        {
+            _logger.LogWarning("ApiController: Can't retrieve comments.");
+            return NotFound();
+        }
+        else
+        {
+            return comments.ToList();
+        }
+    }
+
+    [HttpGet("comment/{id}")]
+    [ActionName(nameof(GetComment))]
+    [EndpointSummary("Get Comment from id")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<CommentDto>> GetComment(int id)
+    {
+        _logger.LogInformation("ApiController: Retrieving Comment.");
+        var commentModel = await _service.GetCommentAsync(id);
+
+        if (commentModel is null)
+        {
+            _logger.LogWarning("ApiController: The Comment doesn't exist.");
+            return NotFound();
+        }
+        else
+        {
+            return commentModel;
+        }
+    }
+
+    [HttpGet("like/{id}")]
+    [ActionName(nameof(GetLike))]
+    [EndpointSummary("Get Like from id")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<LikeDto>> GetLike(int id)
+    {
+        _logger.LogInformation("ApiController: Retrieving Like.");
+        var likeModel = await _service.GetLikeAsync(id);
+
+        if (likeModel is null)
+        {
+            _logger.LogWarning("ApiController: The Like doesn't exist.");
+            return NotFound();
+        }
+        else
+        {
+            return likeModel;
         }
     }
 
