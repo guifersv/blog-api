@@ -59,19 +59,24 @@ public class BlogRepository(BlogContext context) : IBlogRepository
             .FirstOrDefaultAsync(m => m.Id == commentModelId);
     }
 
-    public async Task<UserModel?> GetUserModelAsync(string userId)
-    {
-        return await _context.Users.AsNoTracking().FirstOrDefaultAsync(m => m.Id == userId);
-    }
-
     public async Task<UserModel?> FindUserModelById(string userId)
     {
         return await _context.Users.FindAsync(userId);
     }
 
+    public async Task<UserModel?> GetUserModelAsync(string userId)
+    {
+        return await _context.Users.AsNoTracking().FirstOrDefaultAsync(m => m.Id == userId);
+    }
+
     public async Task<LikeModel?> FindLikeModelById(int likeModelId)
     {
         return await _context.Likes.FindAsync(likeModelId);
+    }
+
+    public async Task<LikeModel?> GetLikeModelAsync(int likeModelId)
+    {
+        return await _context.Likes.AsNoTracking().FirstOrDefaultAsync(m => m.Id == likeModelId);
     }
 
     public async Task<PostModel> UpdatePostModel(PostModel postModel)

@@ -14,6 +14,8 @@ public interface IBlogService
 
     public Task<PostDto?> GetPostAsync(int postId);
     public Task<CommentDto?> GetCommentAsync(int commentId);
+    public Task<IEnumerable<CommentDto>?> GetCommentsFromPostAsync(int postId);
+    public Task<LikeDto?> GetLikeAsync(int likeId);
     public Task<IEnumerable<LikeDto>?> GetLikesFromPostAsync(int postId);
 
     public Task<PostDto?> UpdatePost(int postId, PostDto postDto);
