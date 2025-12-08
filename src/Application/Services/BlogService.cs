@@ -163,7 +163,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
         return [.. model.LikeModelNavigation.Select(Utils.LikeModel2Dto)];
     }
 
-    public async Task<PostDto?> UpdatePost(int postId, PostDto postDto)
+    public async Task<PostDto?> UpdatePost(string userId, int postId, PostDto postDto)
     {
         _logger.LogDebug("BlogService: Editing post.");
         var postModel = await _repository.FindPostModelById(postId);
@@ -173,18 +173,25 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
             _logger.LogDebug("BlogService: Post doesn't exist.");
             return null;
         }
-        else
+
+        if (postModel.User.Id != userId)
         {
-            postModel.Title = postDto.Title;
-            postModel.Content = postDto.Content;
-            postModel.CreatedAt = postDto.CreatedAt;
-            postModel.UpdatedAt = postDto.UpdatedAt;
-            var returnedModel = await _repository.UpdatePostModel(postModel);
-            return Utils.PostModel2Dto(returnedModel);
+            _logger.LogDebug("BlogService: Post Owner differ from provided userId.");
+            return null;
         }
+
+        postModel.Title = postDto.Title;
+        postModel.Content = postDto.Content;
+        postModel.CreatedAt = postDto.CreatedAt;
+        postModel.UpdatedAt = postDto.UpdatedAt;
+        return Utils.PostModel2Dto(await _repository.UpdatePostModel(postModel));
     }
 
-    public async Task<CommentDto?> UpdateComment(int commentId, CommentDto commentDto)
+    public async Task<CommentDto?> UpdateComment(
+        string userId,
+        int commentId,
+        CommentDto commentDto
+    )
     {
         _logger.LogDebug("BlogService: Editing comment.");
         var commentModel = await _repository.FindCommentModelById(commentId);
@@ -194,62 +201,93 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
             _logger.LogDebug("BlogService: Comment doesn't exist.");
             return null;
         }
-        else
+
+        if (commentModel.User.Id != userId)
         {
-            commentModel.Content = commentDto.Content;
-            commentModel.CreatedAt = commentDto.CreatedAt;
-            var returnedModel = await _repository.UpdateCommentModel(commentModel);
-            return Utils.CommentModel2Dto(returnedModel);
+            _logger.LogDebug("BlogService: Comment Owner differ from provided userId.");
+            return null;
         }
+
+        commentModel.Content = commentDto.Content;
+        commentModel.CreatedAt = commentDto.CreatedAt;
+        var returnedModel = await _repository.UpdateCommentModel(commentModel);
+        return Utils.CommentModel2Dto(returnedModel);
     }
 
-    public async Task DeletePost(int postId)
+    public async Task<bool> DeletePost(string userId, int postId)
     {
         _logger.LogDebug("BlogService: Removing post.");
         var model = await _repository.FindPostModelById(postId);
 
         if (model is null)
+        {
             _logger.LogDebug("BlogService: Post doesn't exist.");
-        else
-            await _repository.DeletePostModel(model);
+            return false;
+        }
+
+        if (model.User.Id != userId)
+        {
+            _logger.LogDebug("BlogService: Post Owner differ from provided userId.");
+            return false;
+        }
+
+        await _repository.DeletePostModel(model);
+        return true;
     }
 
-    public async Task DeleteComment(int commentId)
+    public async Task<bool> DeleteComment(string userId, int commentId)
     {
         _logger.LogDebug("BlogService: Removing comment.");
         var model = await _repository.FindCommentModelById(commentId);
 
         if (model is null)
+        {
             _logger.LogDebug("BlogService: Comment doesn't exist.");
-        else
-            await _repository.DeleteCommentModel(model);
+            return false;
+        }
+
+        if (model.User.Id != userId)
+        {
+            _logger.LogDebug("BlogService: Comment Owner differ from provided userId.");
+            return false;
+        }
+
+        await _repository.DeleteCommentModel(model);
+        return true;
     }
 
-    public async Task DeleteLike(int likeId)
+    public async Task<bool> DeleteLike(string userId, int likeId)
     {
         _logger.LogDebug("BlogService: Removing like.");
         var model = await _repository.FindLikeModelById(likeId);
 
         if (model is null)
+        {
             _logger.LogDebug("BlogService: Like doesn't exist.");
-        else
-            await _repository.DeleteLikeModel(model);
+            return false;
+        }
+
+        if (model.User.Id != userId)
+        {
+            _logger.LogDebug("BlogService: Like Owner differ from provided userId.");
+            return false;
+        }
+
+        await _repository.DeleteLikeModel(model);
+        return true;
     }
 
-    public async Task DeleteUser(string userId)
+    public async Task<bool> DeleteUser(string userId)
     {
         _logger.LogDebug("BlogService: Removing user.");
         var model = await _repository.FindUserModelById(userId);
 
         if (model is null)
+        {
             _logger.LogDebug("BlogService: User doesn't exist.");
-        else
-            await _repository.DeleteUserModel(model);
-    }
-
-    public async Task<string?> GetPostOwner(int postId)
-    {
-        var post = await _repository.GetPostModelAsync(postId);
-        return post?.User.Id;
+            return false;
+        }
+        await _repository.DeleteUserModel(model);
+        return true;
     }
 }

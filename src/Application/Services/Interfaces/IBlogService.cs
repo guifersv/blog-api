@@ -18,13 +18,11 @@ public interface IBlogService
     public Task<LikeDto?> GetLikeAsync(int likeId);
     public Task<IEnumerable<LikeDto>?> GetLikesFromPostAsync(int postId);
 
-    public Task<PostDto?> UpdatePost(int postId, PostDto postDto);
-    public Task<CommentDto?> UpdateComment(int commentId, CommentDto commentDto);
+    public Task<PostDto?> UpdatePost(string userId, int postId, PostDto postDto);
+    public Task<CommentDto?> UpdateComment(string userId, int commentId, CommentDto commentDto);
 
-    public Task DeletePost(int postId);
-    public Task DeleteComment(int commentId);
-    public Task DeleteLike(int likeId);
-    public Task DeleteUser(string userId);
-
-    public Task<string?> GetPostOwner(int postId);
+    public Task<bool> DeletePost(string userId, int postId);
+    public Task<bool> DeleteComment(string userId, int commentId);
+    public Task<bool> DeleteLike(string userId, int likeId);
+    public Task<bool> DeleteUser(string userId);
 }
