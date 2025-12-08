@@ -160,7 +160,7 @@ public class ControllersTests
     }
 
     [Fact]
-    public async Task CreatePost_ShouldReturnCreatedAtAction_WhenNameIdentifierAndUserExists()
+    public async Task CreatePost_ShouldReturnCreatedAtAction_WhenValidNameIdentifierAndServiceCreateMethod()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
         PostDto postDto = new() { Content = "content" };
@@ -202,7 +202,7 @@ public class ControllersTests
     }
 
     [Fact]
-    public async Task CreatePost_ShouldReturnBadRequest_WhenNameIdentifierNotExist()
+    public async Task CreatePost_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
         PostDto postDto = new() { Content = "content" };
@@ -241,7 +241,7 @@ public class ControllersTests
     }
 
     [Fact]
-    public async Task CreatePost_ShouldReturnBadRequest_WhenUserDoesNotExist()
+    public async Task CreatePost_ShouldReturnBadRequest_WhenServiceCreateMethodReturnsNull()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
         PostDto postDto = new() { Content = "content" };
@@ -280,7 +280,7 @@ public class ControllersTests
     }
 
     [Fact]
-    public async Task CreateLike_ShouldReturnCreatedAtAction_WhenNameIdentifierAndUserExists()
+    public async Task CreateLike_ShouldReturnCreatedAtAction_WhenValidNameIdentifierAndServiceCreateMethod()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
         PostDto postDto = new() { Content = "content" };
@@ -319,7 +319,7 @@ public class ControllersTests
     }
 
     [Fact]
-    public async Task CreateLike_ShouldReturnBadRequest_WhenNameIdentifierDoesNotExist()
+    public async Task CreateLike_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
         PostDto postDto = new() { Content = "content" };
@@ -355,7 +355,7 @@ public class ControllersTests
     }
 
     [Fact]
-    public async Task CreateLike_ShouldReturnBadRequest_WhenUserOrPostDoesNotExist()
+    public async Task CreateLike_ShouldReturnBadRequest_WhenServiceCreateMethodReturnsNull()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
         PostDto postDto = new() { Content = "content" };
@@ -391,7 +391,7 @@ public class ControllersTests
     }
 
     [Fact]
-    public async Task CreateComment_ShouldReturnCreatedAtAction_WhenNameIdentifierAndUserExists()
+    public async Task CreateComment_ShouldReturnCreatedAtAction_WhenValidNameIdentifierAndServiceCreateMethod()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
         PostDto postDto = new() { Content = "content" };
@@ -432,7 +432,7 @@ public class ControllersTests
     }
 
     [Fact]
-    public async Task CreateComment_ShouldReturnBadRequest_WhenNameIdentifierDoesNotExist()
+    public async Task CreateComment_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
         PostDto postDto = new() { Content = "content" };
@@ -470,7 +470,7 @@ public class ControllersTests
     }
 
     [Fact]
-    public async Task CreateComment_ShouldReturnBadRequest_WhenUserOrPostDoesNotExist()
+    public async Task CreateComment_ShouldReturnBadRequest_WhenServiceCreateMethodReturnsNull()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
         PostDto postDto = new() { Content = "content" };
@@ -502,6 +502,126 @@ public class ControllersTests
             ControllerContext = new ControllerContext { HttpContext = httpContext },
         };
         var result = await controller.CreateComment(1, commentDto);
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task UpdatePost_ShouldReturnNoContent_WhenValidNameIdentifierAndServiceUpdateMethod()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.UpdatePost(
+                    It.Is<string>(t => t == claim.Value),
+                    It.IsAny<int>(),
+                    It.Is<PostDto>(p =>
+                        p.Title == postDto.Title
+                        && p.Content == postDto.Content
+                        && p.CreatedAt == postDto.CreatedAt
+                        && p.UpdatedAt == postDto.UpdatedAt
+                    )
+                ).Result
+            )
+            .Returns(postDto)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.UpdatePost(1, postDto);
+
+        Assert.IsType<NoContentResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task UpdatePost_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity()),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.UpdatePost(
+                    It.Is<string>(t => t == claim.Value),
+                    It.IsAny<int>(),
+                    It.Is<PostDto>(p =>
+                        p.Title == postDto.Title
+                        && p.Content == postDto.Content
+                        && p.CreatedAt == postDto.CreatedAt
+                        && p.UpdatedAt == postDto.UpdatedAt
+                    )
+                ).Result
+            )
+            .Returns(postDto)
+            .Verifiable(Times.Never());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.UpdatePost(1, postDto);
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task UpdatePost_ShouldReturnBadRequest_WhenServiceUpdateMethodReturnsNull()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.UpdatePost(
+                    It.Is<string>(t => t == claim.Value),
+                    It.IsAny<int>(),
+                    It.Is<PostDto>(p =>
+                        p.Title == postDto.Title
+                        && p.Content == postDto.Content
+                        && p.CreatedAt == postDto.CreatedAt
+                        && p.UpdatedAt == postDto.UpdatedAt
+                    )
+                ).Result
+            )
+            .Returns((PostDto?)null)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.UpdatePost(1, postDto);
 
         Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();

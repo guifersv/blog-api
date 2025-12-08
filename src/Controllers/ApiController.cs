@@ -200,4 +200,25 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         _logger.LogWarning("ApiController: Can't create Comment.");
         return BadRequest();
     }
+
+    [Authorize]
+    [HttpPost("post/{postId}")]
+    [EndpointSummary("Update Post")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> UpdatePost(int postId, PostDto post)
+    {
+        _logger.LogInformation("ApiController: Updating Post.");
+        var nameIdentifier = HttpContext.User.Claims.FirstOrDefault(c =>
+            c.Type == ClaimTypes.NameIdentifier
+        );
+        if (nameIdentifier is not null)
+        {
+            var updatedModel = await _service.UpdatePost(nameIdentifier.Value, postId, post);
+            if (updatedModel is not null)
+                return NoContent();
+        }
+        _logger.LogWarning("ApiController: Can't update Post.");
+        return BadRequest();
+    }
 }
