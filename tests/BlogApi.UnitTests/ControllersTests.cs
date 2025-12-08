@@ -626,4 +626,118 @@ public class ControllersTests
         Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();
     }
+
+    [Fact]
+    public async Task UpdateComment_ShouldReturnNoContent_WhenValidNameIdentifierAndServiceUpdateMethod()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+        CommentDto commentDto = new();
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.UpdateComment(
+                    It.Is<string>(t => t == claim.Value),
+                    It.IsAny<int>(),
+                    It.Is<CommentDto>(c =>
+                        c.CreatedAt == commentDto.CreatedAt && c.Content == commentDto.Content
+                    )
+                ).Result
+            )
+            .Returns(commentDto)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.UpdateComment(1, commentDto);
+
+        Assert.IsType<NoContentResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateComment_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+        CommentDto commentDto = new();
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity()),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.UpdateComment(
+                    It.Is<string>(t => t == claim.Value),
+                    It.IsAny<int>(),
+                    It.Is<CommentDto>(c =>
+                        c.CreatedAt == commentDto.CreatedAt && c.Content == commentDto.Content
+                    )
+                ).Result
+            )
+            .Returns(commentDto)
+            .Verifiable(Times.Never());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.UpdateComment(1, commentDto);
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateComment_ShouldReturnBadRequest_WhenServiceUpdateMethodReturnsNull()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+        CommentDto commentDto = new();
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.UpdateComment(
+                    It.Is<string>(t => t == claim.Value),
+                    It.IsAny<int>(),
+                    It.Is<CommentDto>(c =>
+                        c.CreatedAt == commentDto.CreatedAt && c.Content == commentDto.Content
+                    )
+                ).Result
+            )
+            .Returns((CommentDto?)null)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.UpdateComment(1, commentDto);
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
 }

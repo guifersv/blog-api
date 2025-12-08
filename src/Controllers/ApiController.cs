@@ -221,4 +221,29 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         _logger.LogWarning("ApiController: Can't update Post.");
         return BadRequest();
     }
+
+    [Authorize]
+    [HttpPut("comment/{commentId}")]
+    [EndpointSummary("Update Comment")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> UpdateComment(int commentId, CommentDto comment)
+    {
+        _logger.LogInformation("ApiController: Updating Comment.");
+        var nameIdentifier = HttpContext.User.Claims.FirstOrDefault(c =>
+            c.Type == ClaimTypes.NameIdentifier
+        );
+        if (nameIdentifier is not null)
+        {
+            var updatedModel = await _service.UpdateComment(
+                nameIdentifier.Value,
+                commentId,
+                comment
+            );
+            if (updatedModel is not null)
+                return NoContent();
+        }
+        _logger.LogWarning("ApiController: Can't update Comment.");
+        return BadRequest();
+    }
 }
