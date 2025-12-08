@@ -556,7 +556,7 @@ public class ServicesTests
     }
 
     [Fact]
-    public async Task UpdatePost_ShouldReturnDto_WhenModelExists()
+    public async Task UpdatePost_ShouldReturnDto_WhenModelExistsAndSameUser()
     {
         UserModel userModel = new() { Id = "id" };
         PostModel postModel = new()
@@ -595,6 +595,7 @@ public class ServicesTests
 
         var service = new BlogService(logger, repositoryMock.Object);
         var returnedObject = await service.UpdatePost(
+            userModel.Id,
             postModel.Id,
             Utils.PostModel2Dto(updatedPostModel)
         );
@@ -605,6 +606,55 @@ public class ServicesTests
         Assert.Equal(updatedPostModel.Content, returnedObject.Content);
         Assert.Equal(updatedPostModel.CreatedAt, returnedObject.CreatedAt);
         Assert.Equal(updatedPostModel.UpdatedAt, returnedObject.UpdatedAt);
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task UpdatePost_ShouldReturnNull_WhenUserDiffer()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new()
+        {
+            User = userModel,
+            Id = 1,
+            Title = "title",
+        };
+        PostModel updatedPostModel = new()
+        {
+            User = userModel,
+            Id = 1,
+            Title = "alias",
+        };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.FindPostModelById(It.Is<int>(w => w == postModel.Id)).Result)
+            .Returns(postModel)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r =>
+                r.UpdatePostModel(
+                    It.Is<PostModel>(w =>
+                        w.Title == updatedPostModel.Title
+                        && w.Content == updatedPostModel.Content
+                        && w.CreatedAt == updatedPostModel.CreatedAt
+                        && w.UpdatedAt == updatedPostModel.UpdatedAt
+                    )
+                ).Result
+            )
+            .Returns<PostModel>(p => p)
+            .Verifiable(Times.Never());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        var returnedObject = await service.UpdatePost(
+            "id2",
+            postModel.Id,
+            Utils.PostModel2Dto(updatedPostModel)
+        );
+
+        Assert.Null(returnedObject);
         repositoryMock.Verify();
     }
 
@@ -648,6 +698,7 @@ public class ServicesTests
 
         var service = new BlogService(logger, repositoryMock.Object);
         var returnedObject = await service.UpdatePost(
+            userModel.Id,
             postModel.Id,
             Utils.PostModel2Dto(updatedPostModel)
         );
@@ -657,7 +708,7 @@ public class ServicesTests
     }
 
     [Fact]
-    public async Task UpdateComment_ShouldReturnDto_WhenModelExists()
+    public async Task UpdateComment_ShouldReturnDto_WhenModelExistsAndSameUser()
     {
         UserModel userModel = new() { Id = "id" };
         PostModel postModel = new() { User = userModel, Id = 1 };
@@ -697,6 +748,7 @@ public class ServicesTests
 
         var service = new BlogService(logger, repositoryMock.Object);
         var returnedObject = await service.UpdateComment(
+            userModel.Id,
             commentModel.Id,
             Utils.CommentModel2Dto(updatedCommentModel)
         );
@@ -705,6 +757,56 @@ public class ServicesTests
         Assert.IsType<CommentDto>(returnedObject);
         Assert.Equal(updatedCommentModel.Content, returnedObject.Content);
         Assert.Equal(updatedCommentModel.CreatedAt, returnedObject.CreatedAt);
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateComment_ShouldReturnNull_WhenUserDiffer()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+        CommentModel commentModel = new()
+        {
+            Id = 1,
+            Post = postModel,
+            User = userModel,
+            Content = "content",
+        };
+        CommentModel updatedCommentModel = new()
+        {
+            Id = 1,
+            Post = postModel,
+            User = userModel,
+            Content = "update",
+        };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.FindCommentModelById(It.Is<int>(w => w == commentModel.Id)).Result)
+            .Returns(commentModel)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r =>
+                r.UpdateCommentModel(
+                    It.Is<CommentModel>(w =>
+                        w.Content == updatedCommentModel.Content
+                        && w.CreatedAt == updatedCommentModel.CreatedAt
+                    )
+                ).Result
+            )
+            .Returns<CommentModel>(p => p)
+            .Verifiable(Times.Never());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        var returnedObject = await service.UpdateComment(
+            "id2",
+            commentModel.Id,
+            Utils.CommentModel2Dto(updatedCommentModel)
+        );
+
+        Assert.Null(returnedObject);
         repositoryMock.Verify();
     }
 
@@ -749,6 +851,7 @@ public class ServicesTests
 
         var service = new BlogService(logger, repositoryMock.Object);
         var returnedObject = await service.UpdateComment(
+            userModel.Id,
             commentModel.Id,
             Utils.CommentModel2Dto(updatedCommentModel)
         );
@@ -758,7 +861,7 @@ public class ServicesTests
     }
 
     [Fact]
-    public async Task DeletePost_ShouldCallRepository_WhenModelExists()
+    public async Task DeletePost_ShouldReturnTrue_WhenModelExistsAndSameUser()
     {
         UserModel userModel = new() { Id = "id" };
         PostModel postModel = new() { User = userModel, Id = 1 };
@@ -776,13 +879,39 @@ public class ServicesTests
             .Verifiable(Times.Once());
 
         var service = new BlogService(logger, repositoryMock.Object);
-        await service.DeletePost(postModel.Id);
+        var result = await service.DeletePost(userModel.Id, postModel.Id);
 
+        Assert.True(result);
         repositoryMock.Verify();
     }
 
     [Fact]
-    public async Task DeletePost_ShouldNotCallRepository_WhenModelDoesNotExist()
+    public async Task DeletePost_ShouldReturnFalse_WhenUserDiffer()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.FindPostModelById(It.Is<int>(w => w == postModel.Id)).Result)
+            .Returns(postModel)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r => r.DeletePostModel(It.Is<PostModel>(w => w == postModel)))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Never());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        var result = await service.DeletePost("id2", postModel.Id);
+
+        Assert.False(result);
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeletePost_ShouldReturnFalse_WhenModelDoesNotExist()
     {
         UserModel userModel = new() { Id = "id" };
         PostModel postModel = new() { User = userModel, Id = 1 };
@@ -800,13 +929,14 @@ public class ServicesTests
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
-        await service.DeletePost(postModel.Id);
+        var result = await service.DeletePost(userModel.Id, postModel.Id);
 
+        Assert.False(result);
         repositoryMock.Verify();
     }
 
     [Fact]
-    public async Task DeleteComment_ShouldCallRepository_WhenModelExists()
+    public async Task DeleteComment_ShouldReturnTrue_WhenModelExistsAndSameUser()
     {
         UserModel userModel = new() { Id = "id" };
         PostModel postModel = new() { User = userModel, Id = 1 };
@@ -830,13 +960,45 @@ public class ServicesTests
             .Verifiable(Times.Once());
 
         var service = new BlogService(logger, repositoryMock.Object);
-        await service.DeleteComment(commentModel.Id);
+        var result = await service.DeleteComment(userModel.Id, commentModel.Id);
 
+        Assert.True(result);
         repositoryMock.Verify();
     }
 
     [Fact]
-    public async Task DeleteComment_ShouldNotCallRepository_WhenModelDoesNotExist()
+    public async Task DeleteComment_ShouldReturnFalse_WhenUserDiffer()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+        CommentModel commentModel = new()
+        {
+            Id = 1,
+            Post = postModel,
+            User = userModel,
+        };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.FindCommentModelById(It.Is<int>(w => w == commentModel.Id)).Result)
+            .Returns(commentModel)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r => r.DeleteCommentModel(It.Is<CommentModel>(w => w == commentModel)))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Never());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        var result = await service.DeleteComment("id2", commentModel.Id);
+
+        Assert.False(result);
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeleteComment_ShouldReturnFalse_WhenModelDoesNotExist()
     {
         UserModel userModel = new() { Id = "id" };
         PostModel postModel = new() { User = userModel, Id = 1 };
@@ -860,13 +1022,14 @@ public class ServicesTests
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
-        await service.DeleteComment(commentModel.Id);
+        var result = await service.DeleteComment(userModel.Id, commentModel.Id);
 
+        Assert.False(result);
         repositoryMock.Verify();
     }
 
     [Fact]
-    public async Task DeleteLike_ShouldCallRepository_WhenModelExists()
+    public async Task DeleteLike_ShouldReturnTrue_WhenModelExistsAndSameUser()
     {
         UserModel userModel = new() { Id = "id" };
         PostModel postModel = new() { User = userModel, Id = 1 };
@@ -890,13 +1053,45 @@ public class ServicesTests
             .Verifiable(Times.Once());
 
         var service = new BlogService(logger, repositoryMock.Object);
-        await service.DeleteLike(likeModel.Id);
+        var result = await service.DeleteLike(userModel.Id, likeModel.Id);
 
+        Assert.True(result);
         repositoryMock.Verify();
     }
 
     [Fact]
-    public async Task DeleteLike_ShouldNotCallRepository_WhenModelDoesNotExist()
+    public async Task DeleteLike_ShouldReturnFalse_WhenUserDiffer()
+    {
+        UserModel userModel = new() { Id = "id" };
+        PostModel postModel = new() { User = userModel, Id = 1 };
+        LikeModel likeModel = new()
+        {
+            Id = 1,
+            Post = postModel,
+            User = userModel,
+        };
+
+        var logger = Mock.Of<ILogger<BlogService>>();
+
+        var repositoryMock = new Mock<IBlogRepository>();
+        repositoryMock
+            .Setup(r => r.FindLikeModelById(It.Is<int>(w => w == postModel.Id)).Result)
+            .Returns(likeModel)
+            .Verifiable(Times.Once());
+        repositoryMock
+            .Setup(r => r.DeleteLikeModel(It.Is<LikeModel>(w => w == likeModel)))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Never());
+
+        var service = new BlogService(logger, repositoryMock.Object);
+        var result = await service.DeleteLike("id2", likeModel.Id);
+
+        Assert.False(result);
+        repositoryMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeleteLike_ShouldReturnFalse_WhenModelDoesNotExist()
     {
         UserModel userModel = new() { Id = "id" };
         PostModel postModel = new() { User = userModel, Id = 1 };
@@ -920,13 +1115,14 @@ public class ServicesTests
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
-        await service.DeleteLike(likeModel.Id);
+        var result = await service.DeleteLike(userModel.Id, likeModel.Id);
 
+        Assert.False(result);
         repositoryMock.Verify();
     }
 
     [Fact]
-    public async Task DeleteUser_ShouldCallRepository_WhenModelExists()
+    public async Task DeleteUser_ShouldReturnTrue_WhenModelExists()
     {
         UserModel userModel = new() { Id = "id" };
 
@@ -943,13 +1139,14 @@ public class ServicesTests
             .Verifiable(Times.Once());
 
         var service = new BlogService(logger, repositoryMock.Object);
-        await service.DeleteUser(userModel.Id);
+        var result = await service.DeleteUser(userModel.Id);
 
+        Assert.True(result);
         repositoryMock.Verify();
     }
 
     [Fact]
-    public async Task DeleteUser_ShouldNotCallRepository_WhenModelDoesNotExist()
+    public async Task DeleteUser_ShouldReturnFalse_WhenModelDoesNotExist()
     {
         UserModel userModel = new() { Id = "id" };
 
@@ -966,51 +1163,9 @@ public class ServicesTests
             .Verifiable(Times.Never());
 
         var service = new BlogService(logger, repositoryMock.Object);
-        await service.DeleteUser(userModel.Id);
+        var result = await service.DeleteUser(userModel.Id);
 
-        repositoryMock.Verify();
-    }
-
-    [Fact]
-    public async Task GetPostOwner_ShouldReturnUserId_WhenPostExists()
-    {
-        UserModel userModel = new() { Id = "id" };
-        PostModel postModel = new() { User = userModel, Id = 1 };
-
-        var logger = Mock.Of<ILogger<BlogService>>();
-
-        var repositoryMock = new Mock<IBlogRepository>();
-        repositoryMock
-            .Setup(r => r.GetPostModelAsync(It.Is<int>(w => w == postModel.Id)).Result)
-            .Returns(postModel)
-            .Verifiable(Times.Once());
-
-        var service = new BlogService(logger, repositoryMock.Object);
-        var result = await service.GetPostOwner(postModel.Id);
-
-        Assert.NotNull(result);
-        Assert.Equal(userModel.Id, result);
-        repositoryMock.Verify();
-    }
-
-    [Fact]
-    public async Task GetPostOwner_ShouldReturnNull_WhenPostDoesNotExist()
-    {
-        UserModel userModel = new() { Id = "id" };
-        PostModel postModel = new() { User = userModel, Id = 1 };
-
-        var logger = Mock.Of<ILogger<BlogService>>();
-
-        var repositoryMock = new Mock<IBlogRepository>();
-        repositoryMock
-            .Setup(r => r.GetPostModelAsync(It.Is<int>(w => w == postModel.Id)).Result)
-            .Returns((PostModel?)null)
-            .Verifiable(Times.Once());
-
-        var service = new BlogService(logger, repositoryMock.Object);
-        var result = await service.GetPostOwner(postModel.Id);
-
-        Assert.Null(result);
+        Assert.False(result);
         repositoryMock.Verify();
     }
 }
