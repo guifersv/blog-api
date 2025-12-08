@@ -202,7 +202,7 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
     }
 
     [Authorize]
-    [HttpPost("post/{postId}")]
+    [HttpPut("post/{postId}")]
     [EndpointSummary("Update Post")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
