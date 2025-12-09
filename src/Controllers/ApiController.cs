@@ -267,4 +267,25 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         _logger.LogWarning("ApiController: Can't delete Post.");
         return BadRequest();
     }
+
+    [Authorize]
+    [HttpDelete("comment/{commentId}")]
+    [EndpointSummary("Delete Post")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> DeleteComment(int commentId)
+    {
+        _logger.LogInformation("ApiController: Deleting Comment.");
+        var nameIdentifier = HttpContext.User.Claims.FirstOrDefault(c =>
+            c.Type == ClaimTypes.NameIdentifier
+        );
+        if (nameIdentifier is not null)
+        {
+            var isDeleted = await _service.DeleteComment(nameIdentifier.Value, commentId);
+            if (isDeleted)
+                return NoContent();
+        }
+        _logger.LogWarning("ApiController: Can't delete Comment.");
+        return BadRequest();
+    }
 }
