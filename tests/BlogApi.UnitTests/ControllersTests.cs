@@ -1007,4 +1007,91 @@ public class ControllersTests
         Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();
     }
+
+    [Fact]
+    public async Task DeleteUser_ShouldReturnNoContent_WhenValidNameIdentifierAndServiceDeleteMethod()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s => s.DeleteUser(It.Is<string>(t => t == claim.Value)).Result)
+            .Returns(true)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.DeleteUser();
+
+        Assert.IsType<NoContentResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeleteUser_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity()),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s => s.DeleteUser(It.Is<string>(t => t == claim.Value)).Result)
+            .Returns(true)
+            .Verifiable(Times.Never());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.DeleteUser();
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeleteUser_ShouldReturnBadRequest_WhenServiceDeleteMethodReturnsFalse()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s => s.DeleteUser(It.Is<string>(t => t == claim.Value)).Result)
+            .Returns(false)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.DeleteUser();
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
 }

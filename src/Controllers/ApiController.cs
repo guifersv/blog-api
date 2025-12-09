@@ -309,4 +309,25 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         _logger.LogWarning("ApiController: Can't delete Like.");
         return BadRequest();
     }
+
+    [Authorize]
+    [HttpDelete("user")]
+    [EndpointSummary("Delete User")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> DeleteUser()
+    {
+        _logger.LogInformation("ApiController: Deleting User.");
+        var nameIdentifier = HttpContext.User.Claims.FirstOrDefault(c =>
+            c.Type == ClaimTypes.NameIdentifier
+        );
+        if (nameIdentifier is not null)
+        {
+            var isDeleted = await _service.DeleteUser(nameIdentifier.Value);
+            if (isDeleted)
+                return NoContent();
+        }
+        _logger.LogWarning("ApiController: Can't delete User.");
+        return BadRequest();
+    }
 }
