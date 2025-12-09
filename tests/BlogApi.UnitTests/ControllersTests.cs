@@ -920,4 +920,91 @@ public class ControllersTests
         Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();
     }
+
+    [Fact]
+    public async Task DeleteLike_ShouldReturnNoContent_WhenValidNameIdentifierAndServiceDeleteMethod()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s => s.DeleteLike(It.Is<string>(t => t == claim.Value), It.IsAny<int>()).Result)
+            .Returns(true)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.DeleteLike(1);
+
+        Assert.IsType<NoContentResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeleteLike_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity()),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s => s.DeleteLike(It.Is<string>(t => t == claim.Value), It.IsAny<int>()).Result)
+            .Returns(true)
+            .Verifiable(Times.Never());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.DeleteLike(1);
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task DeleteLike_ShouldReturnBadRequest_WhenServiceDeleteMethodReturnsFalse()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Content = "content" };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s => s.DeleteLike(It.Is<string>(t => t == claim.Value), It.IsAny<int>()).Result)
+            .Returns(false)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.DeleteLike(1);
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
 }

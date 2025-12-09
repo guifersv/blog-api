@@ -288,4 +288,25 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         _logger.LogWarning("ApiController: Can't delete Comment.");
         return BadRequest();
     }
+
+    [Authorize]
+    [HttpDelete("like/{likeId}")]
+    [EndpointSummary("Delete Like")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> DeleteLike(int likeId)
+    {
+        _logger.LogInformation("ApiController: Deleting Like.");
+        var nameIdentifier = HttpContext.User.Claims.FirstOrDefault(c =>
+            c.Type == ClaimTypes.NameIdentifier
+        );
+        if (nameIdentifier is not null)
+        {
+            var isDeleted = await _service.DeleteLike(nameIdentifier.Value, likeId);
+            if (isDeleted)
+                return NoContent();
+        }
+        _logger.LogWarning("ApiController: Can't delete Like.");
+        return BadRequest();
+    }
 }
