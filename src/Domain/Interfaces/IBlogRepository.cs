@@ -17,9 +17,9 @@ public interface IBlogRepository
     public Task<LikeModel?> FindLikeModelById(int likeModelId);
     public Task<LikeModel?> GetLikeModelAsync(int likeModelId);
 
-    public Task<PostModel> UpdatePostModel(PostModel postModel);
-    public Task<UserModel> UpdateUserModel(UserModel userModel);
-    public Task<CommentModel> UpdateCommentModel(CommentModel commentModel);
+    public Task UpdatePostModel(PostModel postModel);
+    public Task UpdateUserModel(UserModel userModel);
+    public Task UpdateCommentModel(CommentModel commentModel);
 
     public Task DeletePostModel(PostModel postModel);
     public Task DeleteCommentModel(CommentModel commentModel);

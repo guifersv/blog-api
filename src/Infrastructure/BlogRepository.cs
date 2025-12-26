@@ -11,9 +11,9 @@ public class BlogRepository(BlogContext context) : IBlogRepository
     public async Task<PostModel> CreatePostModel(UserModel userModel, PostModel postModel)
     {
         userModel.PostModelNavigation.Add(postModel);
-        var updatedModel = await UpdateUserModel(userModel);
+        _context.Users.Update(userModel);
         await _context.SaveChangesAsync();
-        return updatedModel.PostModelNavigation.Last();
+        return postModel;
     }
 
     public async Task<CommentModel> CreateCommentModel(
@@ -22,15 +22,17 @@ public class BlogRepository(BlogContext context) : IBlogRepository
     )
     {
         postModel.CommentModelNavigation.Add(commentModel);
-        var updatedModel = await UpdatePostModel(postModel);
-        return updatedModel.CommentModelNavigation.Last();
+        _context.Posts.Update(postModel);
+        await _context.SaveChangesAsync();
+        return commentModel;
     }
 
     public async Task<LikeModel> CreateLikeModel(PostModel postModel, LikeModel likeModel)
     {
         postModel.LikeModelNavigation.Add(likeModel);
-        var updatedModel = await UpdatePostModel(postModel);
-        return updatedModel.LikeModelNavigation.Last();
+        _context.Posts.Update(postModel);
+        await _context.SaveChangesAsync();
+        return likeModel;
     }
 
     public async Task<PostModel?> FindPostModelById(int postModelId)
@@ -40,11 +42,7 @@ public class BlogRepository(BlogContext context) : IBlogRepository
 
     public async Task<PostModel?> GetPostModelAsync(int postModelId)
     {
-        return await _context
-            .Posts.Include(p => p.LikeModelNavigation)
-            .Include(p => p.CommentModelNavigation)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(m => m.Id == postModelId);
+        return await _context.Posts.AsNoTracking().FirstOrDefaultAsync(m => m.Id == postModelId);
     }
 
     public async Task<CommentModel?> FindCommentModelById(int commentModelId)
@@ -79,25 +77,22 @@ public class BlogRepository(BlogContext context) : IBlogRepository
         return await _context.Likes.AsNoTracking().FirstOrDefaultAsync(m => m.Id == likeModelId);
     }
 
-    public async Task<PostModel> UpdatePostModel(PostModel postModel)
+    public async Task UpdatePostModel(PostModel postModel)
     {
-        var updatedModel = _context.Posts.Update(postModel);
+        _context.Posts.Update(postModel);
         await _context.SaveChangesAsync();
-        return updatedModel.Entity;
     }
 
-    public async Task<UserModel> UpdateUserModel(UserModel userModel)
+    public async Task UpdateUserModel(UserModel userModel)
     {
-        var updatedModel = _context.Users.Update(userModel);
+        _context.Users.Update(userModel);
         await _context.SaveChangesAsync();
-        return updatedModel.Entity;
     }
 
-    public async Task<CommentModel> UpdateCommentModel(CommentModel commentModel)
+    public async Task UpdateCommentModel(CommentModel commentModel)
     {
-        var updatedModel = _context.Comments.Update(commentModel);
+        _context.Comments.Update(commentModel);
         await _context.SaveChangesAsync();
-        return updatedModel.Entity;
     }
 
     public async Task DeletePostModel(PostModel postModel)
