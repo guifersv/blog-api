@@ -35,10 +35,10 @@ try
     );
 
     SqlConnectionStringBuilder sqlConnectionStringBuilder = new(
-        builder.Configuration.GetConnectionString("BlogContext")
+        builder.Configuration.GetConnectionString("DefaultConnection")
     )
     {
-        Password = builder.Configuration["BlogContext:Password"],
+        Password = builder.Configuration["DefaultConnection:Password"],
     };
 
     builder.Services.AddDbContext<BlogContext>(options =>
