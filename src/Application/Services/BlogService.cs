@@ -24,6 +24,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
         PostModel postModel = new()
         {
+            UserModelId = userId,
             User = userModel,
             Title = postDto.Title,
             Content = postDto.Content,
@@ -51,6 +52,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
         CommentModel commentModel = new()
         {
+            UserModelId = userId,
             User = userModel,
             Post = postModel,
             Content = commentDto.Content,
@@ -76,6 +78,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
 
         LikeModel likeModel = new()
         {
+            UserModelId = userId,
             User = userModel,
             Post = postModel,
             CreatedAt = likeDto.CreatedAt,
@@ -130,29 +133,29 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
     public async Task<IEnumerable<CommentDto>?> GetCommentsFromPostAsync(int postId)
     {
         _logger.LogDebug("BlogService: Retrieving Comments.");
-        var model = await _repository.GetPostModelAsync(postId);
+        var result = await _repository.GetCommentsFromPostAsync(postId);
 
-        if (model is null)
+        if (result is null)
         {
             _logger.LogDebug("BlogService: Post doesn't exist.");
             return null;
         }
 
-        return [.. model.CommentModelNavigation.Select(Utils.CommentModel2Dto)];
+        return [.. result.Select(Utils.CommentModel2Dto)];
     }
 
     public async Task<IEnumerable<LikeDto>?> GetLikesFromPostAsync(int postId)
     {
         _logger.LogDebug("BlogService: Retrieving Likes.");
-        var model = await _repository.GetPostModelAsync(postId);
+        var result = await _repository.GetLikesFromPostAsync(postId);
 
-        if (model is null)
+        if (result is null)
         {
             _logger.LogDebug("BlogService: Post doesn't exist.");
             return null;
         }
 
-        return [.. model.LikeModelNavigation.Select(Utils.LikeModel2Dto)];
+        return [.. result.Select(Utils.LikeModel2Dto)];
     }
 
     public async Task<bool> UpdatePost(string userId, int postId, PostDto postDto)
@@ -166,7 +169,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
             return false;
         }
 
-        if (postModel.User.Id != userId)
+        if (postModel.UserModelId != userId)
         {
             _logger.LogDebug("BlogService: Post Owner differ from provided userId.");
             return false;
@@ -192,7 +195,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
             return false;
         }
 
-        if (commentModel.User.Id != userId)
+        if (commentModel.UserModelId != userId)
         {
             _logger.LogDebug("BlogService: Comment Owner differ from provided userId.");
             return false;
@@ -216,7 +219,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
             return false;
         }
 
-        if (model.User.Id != userId)
+        if (model.UserModelId != userId)
         {
             _logger.LogDebug("BlogService: Post Owner differ from provided userId.");
             return false;
@@ -237,7 +240,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
             return false;
         }
 
-        if (model.User.Id != userId)
+        if (model.UserModelId != userId)
         {
             _logger.LogDebug("BlogService: Comment Owner differ from provided userId.");
             return false;
@@ -258,7 +261,7 @@ public class BlogService(ILogger<BlogService> logger, IBlogRepository repository
             return false;
         }
 
-        if (model.User.Id != userId)
+        if (model.UserModelId != userId)
         {
             _logger.LogDebug("BlogService: Like Owner differ from provided userId.");
             return false;

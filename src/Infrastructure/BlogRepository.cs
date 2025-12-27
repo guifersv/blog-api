@@ -77,6 +77,24 @@ public class BlogRepository(BlogContext context) : IBlogRepository
         return await _context.Likes.AsNoTracking().FirstOrDefaultAsync(m => m.Id == likeModelId);
     }
 
+    public async Task<IEnumerable<CommentModel>?> GetCommentsFromPostAsync(int postId)
+    {
+        var model = await _context
+            .Posts.AsNoTracking()
+            .Include(p => p.CommentModelNavigation)
+            .FirstOrDefaultAsync(p => p.Id == postId);
+        return model?.CommentModelNavigation;
+    }
+
+    public async Task<IEnumerable<LikeModel>?> GetLikesFromPostAsync(int postId)
+    {
+        var model = await _context
+            .Posts.AsNoTracking()
+            .Include(p => p.LikeModelNavigation)
+            .FirstOrDefaultAsync(p => p.Id == postId);
+        return model?.LikeModelNavigation;
+    }
+
     public async Task UpdatePostModel(PostModel postModel)
     {
         _context.Posts.Update(postModel);

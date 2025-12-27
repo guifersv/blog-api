@@ -16,6 +16,8 @@ public interface IBlogRepository
     public Task<UserModel?> GetUserModelAsync(string userId);
     public Task<LikeModel?> FindLikeModelById(int likeModelId);
     public Task<LikeModel?> GetLikeModelAsync(int likeModelId);
+    public Task<IEnumerable<CommentModel>?> GetCommentsFromPostAsync(int postId);
+    public Task<IEnumerable<LikeModel>?> GetLikesFromPostAsync(int postId);
 
     public Task UpdatePostModel(PostModel postModel);
     public Task UpdateUserModel(UserModel userModel);

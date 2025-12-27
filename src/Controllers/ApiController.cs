@@ -138,8 +138,8 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
             {
                 return CreatedAtAction(
                     nameof(GetPost),
-                    new { postId = createdModel.Value.Item1 },
-                    createdModel.Value.Item2
+                    new { postId = createdModel.Id },
+                    createdModel
                 );
             }
         }
@@ -165,8 +165,8 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
             {
                 return CreatedAtAction(
                     nameof(GetLike),
-                    new { likeId = createdModel.Value.Item1 },
-                    createdModel.Value.Item2
+                    new { likeId = createdModel.Id },
+                    createdModel
                 );
             }
         }
@@ -192,8 +192,8 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
             {
                 return CreatedAtAction(
                     nameof(GetComment),
-                    new { commentId = createdModel.Value.Item1 },
-                    createdModel.Value.Item2
+                    new { commentId = createdModel.Id },
+                    createdModel
                 );
             }
         }
@@ -215,7 +215,7 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
         if (nameIdentifier is not null)
         {
             var updatedModel = await _service.UpdatePost(nameIdentifier.Value, postId, post);
-            if (updatedModel is not null)
+            if (updatedModel)
                 return NoContent();
         }
         _logger.LogWarning("ApiController: Can't update Post.");
@@ -240,7 +240,7 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
                 commentId,
                 comment
             );
-            if (updatedModel is not null)
+            if (updatedModel)
                 return NoContent();
         }
         _logger.LogWarning("ApiController: Can't update Comment.");
@@ -270,7 +270,7 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
 
     [Authorize]
     [HttpDelete("comment/{commentId}")]
-    [EndpointSummary("Delete Post")]
+    [EndpointSummary("Delete Comment")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> DeleteComment(int commentId)
