@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace BlogApi.Migrations
+namespace BlogApi.Infrastructure.Migrations
 {
     [DbContext(typeof(BlogContext))]
     partial class BlogContextModelSnapshot : ModelSnapshot
@@ -17,12 +17,12 @@ namespace BlogApi.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.10")
+                .HasAnnotation("ProductVersion", "10.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BlogApi.Domain.CommentModel", b =>
+            modelBuilder.Entity("BlogApi.Domain.Entities.CommentModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -39,22 +39,20 @@ namespace BlogApi.Migrations
                     b.Property<int>("PostModelId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("UserModelId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("UserModelId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PostModelId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserModelId");
 
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("BlogApi.Domain.LikeModel", b =>
+            modelBuilder.Entity("BlogApi.Domain.Entities.LikeModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -68,22 +66,20 @@ namespace BlogApi.Migrations
                     b.Property<int>("PostModelId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("UserModelId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("UserModelId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PostModelId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserModelId");
 
                     b.ToTable("Likes");
                 });
 
-            modelBuilder.Entity("BlogApi.Domain.PostModel", b =>
+            modelBuilder.Entity("BlogApi.Domain.Entities.PostModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -104,20 +100,18 @@ namespace BlogApi.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("UserModelId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("UserModelId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserModelId");
 
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("BlogApi.Domain.UserModel", b =>
+            modelBuilder.Entity("BlogApi.Domain.Entities.UserModel", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -315,48 +309,51 @@ namespace BlogApi.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BlogApi.Domain.CommentModel", b =>
+            modelBuilder.Entity("BlogApi.Domain.Entities.CommentModel", b =>
                 {
-                    b.HasOne("BlogApi.Domain.PostModel", "Post")
+                    b.HasOne("BlogApi.Domain.Entities.PostModel", "Post")
                         .WithMany("CommentModelNavigation")
                         .HasForeignKey("PostModelId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("BlogApi.Domain.UserModel", "User")
+                    b.HasOne("BlogApi.Domain.Entities.UserModel", "User")
                         .WithMany("CommentModelNavigation")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("UserModelId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("Post");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BlogApi.Domain.LikeModel", b =>
+            modelBuilder.Entity("BlogApi.Domain.Entities.LikeModel", b =>
                 {
-                    b.HasOne("BlogApi.Domain.PostModel", "Post")
+                    b.HasOne("BlogApi.Domain.Entities.PostModel", "Post")
                         .WithMany("LikeModelNavigation")
                         .HasForeignKey("PostModelId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("BlogApi.Domain.UserModel", "User")
+                    b.HasOne("BlogApi.Domain.Entities.UserModel", "User")
                         .WithMany("LikeModelNavigation")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("UserModelId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("Post");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BlogApi.Domain.PostModel", b =>
+            modelBuilder.Entity("BlogApi.Domain.Entities.PostModel", b =>
                 {
-                    b.HasOne("BlogApi.Domain.UserModel", "User")
+                    b.HasOne("BlogApi.Domain.Entities.UserModel", "User")
                         .WithMany("PostModelNavigation")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("UserModelId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -372,7 +369,7 @@ namespace BlogApi.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("BlogApi.Domain.UserModel", null)
+                    b.HasOne("BlogApi.Domain.Entities.UserModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -381,7 +378,7 @@ namespace BlogApi.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("BlogApi.Domain.UserModel", null)
+                    b.HasOne("BlogApi.Domain.Entities.UserModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -396,7 +393,7 @@ namespace BlogApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BlogApi.Domain.UserModel", null)
+                    b.HasOne("BlogApi.Domain.Entities.UserModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -405,21 +402,21 @@ namespace BlogApi.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("BlogApi.Domain.UserModel", null)
+                    b.HasOne("BlogApi.Domain.Entities.UserModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BlogApi.Domain.PostModel", b =>
+            modelBuilder.Entity("BlogApi.Domain.Entities.PostModel", b =>
                 {
                     b.Navigation("CommentModelNavigation");
 
                     b.Navigation("LikeModelNavigation");
                 });
 
-            modelBuilder.Entity("BlogApi.Domain.UserModel", b =>
+            modelBuilder.Entity("BlogApi.Domain.Entities.UserModel", b =>
                 {
                     b.Navigation("CommentModelNavigation");
 

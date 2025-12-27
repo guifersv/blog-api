@@ -7,7 +7,7 @@ public class PostModel
 {
     public int Id { get; set; }
 
-    public int UserModelId { get; set; }
+    public required string UserModelId { get; set; }
 
     [DeleteBehavior(DeleteBehavior.NoAction)]
     public required UserModel User { get; set; }
