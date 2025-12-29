@@ -9,17 +9,17 @@ public class ControllersTests
     [Fact]
     public async Task GetPost_ShouldReturnOk_WhenModelExists()
     {
-        PostDto postDto = new() { Content = "content" };
+        PostDto postDto = new() { Id = 1, Content = "content" };
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var serviceMock = new Mock<IBlogService>();
         serviceMock
-            .Setup(s => s.GetPostAsync(It.IsAny<int>()).Result)
+            .Setup(s => s.GetPostAsync(It.Is<int>(id => id == postDto.Id)).Result)
             .Returns(postDto)
             .Verifiable(Times.Once());
 
         var controller = new ApiController(serviceMock.Object, logger);
-        var result = await controller.GetPost(1);
+        var result = await controller.GetPost(postDto.Id);
 
         Assert.IsType<PostDto>(result.Value);
         Assert.Equal(postDto, result.Value);
@@ -29,16 +29,18 @@ public class ControllersTests
     [Fact]
     public async Task GetPost_ShouldReturnNotFound_WhenModelDoesNotExist()
     {
+        PostDto postDto = new() { Id = 1, Content = "content" };
+
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var serviceMock = new Mock<IBlogService>();
         serviceMock
-            .Setup(s => s.GetPostAsync(It.IsAny<int>()).Result)
+            .Setup(s => s.GetPostAsync(It.Is<int>(id => id == postDto.Id)).Result)
             .Returns((PostDto?)null)
             .Verifiable(Times.Once());
 
         var controller = new ApiController(serviceMock.Object, logger);
-        var result = await controller.GetPost(1);
+        var result = await controller.GetPost(postDto.Id);
 
         Assert.IsType<NotFoundResult>(result.Result);
         serviceMock.Verify();
@@ -47,18 +49,18 @@ public class ControllersTests
     [Fact]
     public async Task GetPostLikes_ShouldReturnLikes_WhenPostExists()
     {
-        PostDto postDto = new() { Content = "content" };
+        PostDto postDto = new() { Id = 1, Content = "content" };
         List<LikeDto> likes = [];
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var serviceMock = new Mock<IBlogService>();
         serviceMock
-            .Setup(s => s.GetLikesFromPostAsync(It.IsAny<int>()).Result)
+            .Setup(s => s.GetLikesFromPostAsync(It.Is<int>(id => id == postDto.Id)).Result)
             .Returns(likes)
             .Verifiable(Times.Once());
 
         var controller = new ApiController(serviceMock.Object, logger);
-        var result = await controller.GetPostLikes(1);
+        var result = await controller.GetPostLikes(postDto.Id);
 
         Assert.IsType<List<LikeDto>>(result.Value);
         Assert.Empty(result.Value);
@@ -68,16 +70,17 @@ public class ControllersTests
     [Fact]
     public async Task GetPostLikes_ShouldReturnNotFound_WhenPostDoesNotExist()
     {
+        PostDto postDto = new() { Id = 1, Content = "content" };
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var serviceMock = new Mock<IBlogService>();
         serviceMock
-            .Setup(s => s.GetLikesFromPostAsync(It.IsAny<int>()).Result)
+            .Setup(s => s.GetLikesFromPostAsync(It.Is<int>(id => id == postDto.Id)).Result)
             .Returns((List<LikeDto>?)null)
             .Verifiable(Times.Once());
 
         var controller = new ApiController(serviceMock.Object, logger);
-        var result = await controller.GetPostLikes(1);
+        var result = await controller.GetPostLikes(postDto.Id);
 
         Assert.IsType<NotFoundResult>(result.Result);
         serviceMock.Verify();
@@ -86,17 +89,19 @@ public class ControllersTests
     [Fact]
     public async Task GetPostComments_ShouldReturnComments_WhenPostExists()
     {
+        PostDto postDto = new() { Id = 1, Content = "content" };
         List<CommentDto> comments = [];
+
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var serviceMock = new Mock<IBlogService>();
         serviceMock
-            .Setup(s => s.GetCommentsFromPostAsync(It.IsAny<int>()).Result)
+            .Setup(s => s.GetCommentsFromPostAsync(It.Is<int>(id => id == postDto.Id)).Result)
             .Returns(comments)
             .Verifiable(Times.Once());
 
         var controller = new ApiController(serviceMock.Object, logger);
-        var result = await controller.GetPostComments(1);
+        var result = await controller.GetPostComments(postDto.Id);
 
         Assert.IsType<List<CommentDto>>(result.Value);
         Assert.Empty(result.Value);
@@ -106,16 +111,17 @@ public class ControllersTests
     [Fact]
     public async Task GetPostComments_ShouldReturnNotFound_WhenPostDoesNotExist()
     {
+        PostDto postDto = new() { Id = 1, Content = "content" };
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var serviceMock = new Mock<IBlogService>();
         serviceMock
-            .Setup(s => s.GetCommentsFromPostAsync(It.IsAny<int>()).Result)
+            .Setup(s => s.GetCommentsFromPostAsync(It.Is<int>(id => id == postDto.Id)).Result)
             .Returns((List<CommentDto>?)null)
             .Verifiable(Times.Once());
 
         var controller = new ApiController(serviceMock.Object, logger);
-        var result = await controller.GetPostComments(1);
+        var result = await controller.GetPostComments(postDto.Id);
 
         Assert.IsType<NotFoundResult>(result.Result);
         serviceMock.Verify();
@@ -124,17 +130,17 @@ public class ControllersTests
     [Fact]
     public async Task GetComment_ShouldReturnOk_WhenModelExists()
     {
-        CommentDto commentDto = new() { Content = "content" };
+        CommentDto commentDto = new() { Id = 1, Content = "content" };
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var serviceMock = new Mock<IBlogService>();
         serviceMock
-            .Setup(s => s.GetCommentAsync(It.IsAny<int>()).Result)
+            .Setup(s => s.GetCommentAsync(It.Is<int>(id => id == commentDto.Id)).Result)
             .Returns(commentDto)
             .Verifiable(Times.Once());
 
         var controller = new ApiController(serviceMock.Object, logger);
-        var result = await controller.GetComment(1);
+        var result = await controller.GetComment(commentDto.Id);
 
         Assert.IsType<CommentDto>(result.Value);
         Assert.Equal(commentDto, result.Value);
@@ -144,16 +150,56 @@ public class ControllersTests
     [Fact]
     public async Task GetComment_ShouldReturnNotFound_WhenModelDoesNotExist()
     {
+        CommentDto commentDto = new() { Id = 1, Content = "content" };
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var serviceMock = new Mock<IBlogService>();
         serviceMock
-            .Setup(s => s.GetCommentAsync(It.IsAny<int>()).Result)
+            .Setup(s => s.GetCommentAsync(It.Is<int>(id => id == commentDto.Id)).Result)
             .Returns((CommentDto?)null)
             .Verifiable(Times.Once());
 
         var controller = new ApiController(serviceMock.Object, logger);
-        var result = await controller.GetComment(1);
+        var result = await controller.GetComment(commentDto.Id);
+
+        Assert.IsType<NotFoundResult>(result.Result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task GetLike_ShouldReturnOk_WhenModelExists()
+    {
+        LikeDto likeDto = new() { Id = 1 };
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s => s.GetLikeAsync(It.Is<int>(id => id == likeDto.Id)).Result)
+            .Returns(likeDto)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger);
+        var result = await controller.GetLike(likeDto.Id);
+
+        Assert.IsType<LikeDto>(result.Value);
+        Assert.Equal(likeDto, result.Value);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task GetLike_ShouldReturnNotFound_WhenModelDoesNotExist()
+    {
+        LikeDto likeDto = new() { Id = 1 };
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s => s.GetLikeAsync(It.Is<int>(id => id == likeDto.Id)).Result)
+            .Returns((LikeDto?)null)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger);
+        var result = await controller.GetLike(likeDto.Id);
 
         Assert.IsType<NotFoundResult>(result.Result);
         serviceMock.Verify();
@@ -163,7 +209,7 @@ public class ControllersTests
     public async Task CreatePost_ShouldReturnCreatedAtAction_WhenValidNameIdentifierAndServiceCreateMethod()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
+        PostDto postDto = new() { Id = 1, Content = "content" };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
@@ -177,15 +223,10 @@ public class ControllersTests
             .Setup(s =>
                 s.CreatePost(
                     It.Is<string>(t => t == claim.Value),
-                    It.Is<PostDto>(p =>
-                        p.Title == postDto.Title
-                        && p.Content == postDto.Content
-                        && p.CreatedAt == postDto.CreatedAt
-                        && p.UpdatedAt == postDto.UpdatedAt
-                    )
+                    It.Is<PostDto>(p => p == postDto)
                 ).Result
             )
-            .Returns((1, postDto))
+            .Returns(postDto)
             .Verifiable(Times.Once());
 
         var controller = new ApiController(serviceMock.Object, logger)
@@ -197,38 +238,23 @@ public class ControllersTests
         var resultObjet = Assert.IsType<CreatedAtActionResult>(result);
         Assert.Equal(nameof(ApiController.GetPost), resultObjet.ActionName);
         Assert.Equal(postDto, resultObjet.Value);
-        Assert.Equal(1, resultObjet.RouteValues?.First(m => m.Key == "postId").Value);
+        Assert.Equal(postDto.Id, resultObjet.RouteValues?.First(m => m.Key == "postId").Value);
         serviceMock.Verify();
     }
 
     [Fact]
     public async Task CreatePost_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
     {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
+        PostDto postDto = new() { Id = 1, Content = "content" };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var httpContext = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity()),
+            User = new ClaimsPrincipal(new ClaimsIdentity([])),
         };
 
         var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s =>
-                s.CreatePost(
-                    It.Is<string>(t => t == claim.Value),
-                    It.Is<PostDto>(p =>
-                        p.Title == postDto.Title
-                        && p.Content == postDto.Content
-                        && p.CreatedAt == postDto.CreatedAt
-                        && p.UpdatedAt == postDto.UpdatedAt
-                    )
-                ).Result
-            )
-            .Returns((1, postDto))
-            .Verifiable(Times.Never());
 
         var controller = new ApiController(serviceMock.Object, logger)
         {
@@ -244,7 +270,7 @@ public class ControllersTests
     public async Task CreatePost_ShouldReturnBadRequest_WhenServiceCreateMethodReturnsNull()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
+        PostDto postDto = new() { Id = 1, Content = "content" };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
@@ -258,15 +284,10 @@ public class ControllersTests
             .Setup(s =>
                 s.CreatePost(
                     It.Is<string>(t => t == claim.Value),
-                    It.Is<PostDto>(p =>
-                        p.Title == postDto.Title
-                        && p.Content == postDto.Content
-                        && p.CreatedAt == postDto.CreatedAt
-                        && p.UpdatedAt == postDto.UpdatedAt
-                    )
+                    It.Is<PostDto>(p => p == postDto)
                 ).Result
             )
-            .Returns((ValueTuple<int, PostDto>?)null)
+            .Returns((PostDto?)null)
             .Verifiable(Times.Once());
 
         var controller = new ApiController(serviceMock.Object, logger)
@@ -283,8 +304,8 @@ public class ControllersTests
     public async Task CreateLike_ShouldReturnCreatedAtAction_WhenValidNameIdentifierAndServiceCreateMethod()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
-        LikeDto likeDto = new();
+        PostDto postDto = new() { Id = 1, Content = "content" };
+        LikeDto likeDto = new() { Id = 1 };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
@@ -298,145 +319,31 @@ public class ControllersTests
             .Setup(s =>
                 s.CreateLike(
                     It.Is<string>(t => t == claim.Value),
-                    It.IsAny<int>(),
-                    It.Is<LikeDto>(p => p.CreatedAt == postDto.CreatedAt)
+                    It.Is<int>(id => id == postDto.Id),
+                    It.Is<LikeDto>(l => l == likeDto)
                 ).Result
             )
-            .Returns((1, likeDto))
+            .Returns(likeDto)
             .Verifiable(Times.Once());
 
         var controller = new ApiController(serviceMock.Object, logger)
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext },
         };
-        var result = await controller.CreateLike(1, likeDto);
+        var result = await controller.CreateLike(postDto.Id, likeDto);
 
         var resultObjet = Assert.IsType<CreatedAtActionResult>(result);
         Assert.Equal(nameof(ApiController.GetLike), resultObjet.ActionName);
         Assert.Equal(likeDto, resultObjet.Value);
-        Assert.Equal(1, resultObjet.RouteValues?.First(m => m.Key == "likeId").Value);
+        Assert.Equal(likeDto.Id, resultObjet.RouteValues?.First(m => m.Key == "likeId").Value);
         serviceMock.Verify();
     }
 
     [Fact]
     public async Task CreateLike_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
     {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
-        LikeDto likeDto = new();
-
-        var logger = Mock.Of<ILogger<ApiController>>();
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity()),
-        };
-
-        var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s =>
-                s.CreateLike(
-                    It.Is<string>(t => t == claim.Value),
-                    It.IsAny<int>(),
-                    It.Is<LikeDto>(p => p.CreatedAt == postDto.CreatedAt)
-                ).Result
-            )
-            .Returns((1, likeDto))
-            .Verifiable(Times.Never());
-
-        var controller = new ApiController(serviceMock.Object, logger)
-        {
-            ControllerContext = new ControllerContext { HttpContext = httpContext },
-        };
-        var result = await controller.CreateLike(1, likeDto);
-
-        var resultObjet = Assert.IsType<BadRequestResult>(result);
-        serviceMock.Verify();
-    }
-
-    [Fact]
-    public async Task CreateLike_ShouldReturnBadRequest_WhenServiceCreateMethodReturnsNull()
-    {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
-        LikeDto likeDto = new();
-
-        var logger = Mock.Of<ILogger<ApiController>>();
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
-        };
-
-        var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s =>
-                s.CreateLike(
-                    It.Is<string>(t => t == claim.Value),
-                    It.IsAny<int>(),
-                    It.Is<LikeDto>(p => p.CreatedAt == postDto.CreatedAt)
-                ).Result
-            )
-            .Returns((ValueTuple<int, LikeDto>?)null)
-            .Verifiable(Times.Once());
-
-        var controller = new ApiController(serviceMock.Object, logger)
-        {
-            ControllerContext = new ControllerContext { HttpContext = httpContext },
-        };
-        var result = await controller.CreateLike(1, likeDto);
-
-        var resultObjet = Assert.IsType<BadRequestResult>(result);
-        serviceMock.Verify();
-    }
-
-    [Fact]
-    public async Task CreateComment_ShouldReturnCreatedAtAction_WhenValidNameIdentifierAndServiceCreateMethod()
-    {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
-        CommentDto commentDto = new();
-
-        var logger = Mock.Of<ILogger<ApiController>>();
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
-        };
-
-        var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s =>
-                s.CreateComment(
-                    It.Is<string>(t => t == claim.Value),
-                    It.IsAny<int>(),
-                    It.Is<CommentDto>(c =>
-                        c.CreatedAt == commentDto.CreatedAt && c.Content == commentDto.Content
-                    )
-                ).Result
-            )
-            .Returns((1, commentDto))
-            .Verifiable(Times.Once());
-
-        var controller = new ApiController(serviceMock.Object, logger)
-        {
-            ControllerContext = new ControllerContext { HttpContext = httpContext },
-        };
-        var result = await controller.CreateComment(1, commentDto);
-
-        var resultObjet = Assert.IsType<CreatedAtActionResult>(result);
-        Assert.Equal(nameof(ApiController.GetComment), resultObjet.ActionName);
-        Assert.Equal(commentDto, resultObjet.Value);
-        Assert.Equal(1, resultObjet.RouteValues?.First(m => m.Key == "commentId").Value);
-        serviceMock.Verify();
-    }
-
-    [Fact]
-    public async Task CreateComment_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
-    {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
-        CommentDto commentDto = new();
+        PostDto postDto = new() { Id = 1, Content = "content" };
+        LikeDto likeDto = new() { Id = 1 };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
@@ -446,24 +353,115 @@ public class ControllersTests
         };
 
         var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s =>
-                s.CreateComment(
-                    It.Is<string>(t => t == claim.Value),
-                    It.IsAny<int>(),
-                    It.Is<CommentDto>(c =>
-                        c.CreatedAt == commentDto.CreatedAt && c.Content == commentDto.Content
-                    )
-                ).Result
-            )
-            .Returns((1, commentDto))
-            .Verifiable(Times.Never());
 
         var controller = new ApiController(serviceMock.Object, logger)
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext },
         };
-        var result = await controller.CreateComment(1, commentDto);
+        var result = await controller.CreateLike(postDto.Id, likeDto);
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task CreateLike_ShouldReturnBadRequest_WhenServiceCreateMethodReturnsNull()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Id = 1, Content = "content" };
+        LikeDto likeDto = new() { Id = 1 };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.CreateLike(
+                    It.Is<string>(t => t == claim.Value),
+                    It.Is<int>(id => id == postDto.Id),
+                    It.Is<LikeDto>(l => l == likeDto)
+                ).Result
+            )
+            .Returns((LikeDto?)null)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.CreateLike(postDto.Id, likeDto);
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task CreateComment_ShouldReturnCreatedAtAction_WhenValidNameIdentifierAndServiceCreateMethod()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Id = 1, Content = "content" };
+        CommentDto commentDto = new() { Id = 1 };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.CreateComment(
+                    It.Is<string>(t => t == claim.Value),
+                    It.Is<int>(id => id == postDto.Id),
+                    It.Is<CommentDto>(c => c == commentDto)
+                ).Result
+            )
+            .Returns(commentDto)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.CreateComment(postDto.Id, commentDto);
+
+        var resultObjet = Assert.IsType<CreatedAtActionResult>(result);
+        Assert.Equal(nameof(ApiController.GetComment), resultObjet.ActionName);
+        Assert.Equal(commentDto, resultObjet.Value);
+        Assert.Equal(
+            commentDto.Id,
+            resultObjet.RouteValues?.First(m => m.Key == "commentId").Value
+        );
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task CreateComment_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
+    {
+        PostDto postDto = new() { Id = 1, Content = "content" };
+        CommentDto commentDto = new() { Id = 1 };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.CreateComment(postDto.Id, commentDto);
 
         Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();
@@ -473,8 +471,8 @@ public class ControllersTests
     public async Task CreateComment_ShouldReturnBadRequest_WhenServiceCreateMethodReturnsNull()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
-        CommentDto commentDto = new();
+        PostDto postDto = new() { Id = 1, Content = "content" };
+        CommentDto commentDto = new() { Id = 1 };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
@@ -488,244 +486,8 @@ public class ControllersTests
             .Setup(s =>
                 s.CreateComment(
                     It.Is<string>(t => t == claim.Value),
-                    It.IsAny<int>(),
-                    It.Is<CommentDto>(c =>
-                        c.CreatedAt == commentDto.CreatedAt && c.Content == commentDto.Content
-                    )
-                ).Result
-            )
-            .Returns((ValueTuple<int, CommentDto>?)null)
-            .Verifiable(Times.Once());
-
-        var controller = new ApiController(serviceMock.Object, logger)
-        {
-            ControllerContext = new ControllerContext { HttpContext = httpContext },
-        };
-        var result = await controller.CreateComment(1, commentDto);
-
-        Assert.IsType<BadRequestResult>(result);
-        serviceMock.Verify();
-    }
-
-    [Fact]
-    public async Task UpdatePost_ShouldReturnNoContent_WhenValidNameIdentifierAndServiceUpdateMethod()
-    {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
-
-        var logger = Mock.Of<ILogger<ApiController>>();
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
-        };
-
-        var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s =>
-                s.UpdatePost(
-                    It.Is<string>(t => t == claim.Value),
-                    It.IsAny<int>(),
-                    It.Is<PostDto>(p =>
-                        p.Title == postDto.Title
-                        && p.Content == postDto.Content
-                        && p.CreatedAt == postDto.CreatedAt
-                        && p.UpdatedAt == postDto.UpdatedAt
-                    )
-                ).Result
-            )
-            .Returns(postDto)
-            .Verifiable(Times.Once());
-
-        var controller = new ApiController(serviceMock.Object, logger)
-        {
-            ControllerContext = new ControllerContext { HttpContext = httpContext },
-        };
-        var result = await controller.UpdatePost(1, postDto);
-
-        Assert.IsType<NoContentResult>(result);
-        serviceMock.Verify();
-    }
-
-    [Fact]
-    public async Task UpdatePost_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
-    {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
-
-        var logger = Mock.Of<ILogger<ApiController>>();
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity()),
-        };
-
-        var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s =>
-                s.UpdatePost(
-                    It.Is<string>(t => t == claim.Value),
-                    It.IsAny<int>(),
-                    It.Is<PostDto>(p =>
-                        p.Title == postDto.Title
-                        && p.Content == postDto.Content
-                        && p.CreatedAt == postDto.CreatedAt
-                        && p.UpdatedAt == postDto.UpdatedAt
-                    )
-                ).Result
-            )
-            .Returns(postDto)
-            .Verifiable(Times.Never());
-
-        var controller = new ApiController(serviceMock.Object, logger)
-        {
-            ControllerContext = new ControllerContext { HttpContext = httpContext },
-        };
-        var result = await controller.UpdatePost(1, postDto);
-
-        Assert.IsType<BadRequestResult>(result);
-        serviceMock.Verify();
-    }
-
-    [Fact]
-    public async Task UpdatePost_ShouldReturnBadRequest_WhenServiceUpdateMethodReturnsNull()
-    {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
-
-        var logger = Mock.Of<ILogger<ApiController>>();
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
-        };
-
-        var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s =>
-                s.UpdatePost(
-                    It.Is<string>(t => t == claim.Value),
-                    It.IsAny<int>(),
-                    It.Is<PostDto>(p =>
-                        p.Title == postDto.Title
-                        && p.Content == postDto.Content
-                        && p.CreatedAt == postDto.CreatedAt
-                        && p.UpdatedAt == postDto.UpdatedAt
-                    )
-                ).Result
-            )
-            .Returns((PostDto?)null)
-            .Verifiable(Times.Once());
-
-        var controller = new ApiController(serviceMock.Object, logger)
-        {
-            ControllerContext = new ControllerContext { HttpContext = httpContext },
-        };
-        var result = await controller.UpdatePost(1, postDto);
-
-        Assert.IsType<BadRequestResult>(result);
-        serviceMock.Verify();
-    }
-
-    [Fact]
-    public async Task UpdateComment_ShouldReturnNoContent_WhenValidNameIdentifierAndServiceUpdateMethod()
-    {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
-        CommentDto commentDto = new();
-
-        var logger = Mock.Of<ILogger<ApiController>>();
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
-        };
-
-        var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s =>
-                s.UpdateComment(
-                    It.Is<string>(t => t == claim.Value),
-                    It.IsAny<int>(),
-                    It.Is<CommentDto>(c =>
-                        c.CreatedAt == commentDto.CreatedAt && c.Content == commentDto.Content
-                    )
-                ).Result
-            )
-            .Returns(commentDto)
-            .Verifiable(Times.Once());
-
-        var controller = new ApiController(serviceMock.Object, logger)
-        {
-            ControllerContext = new ControllerContext { HttpContext = httpContext },
-        };
-        var result = await controller.UpdateComment(1, commentDto);
-
-        Assert.IsType<NoContentResult>(result);
-        serviceMock.Verify();
-    }
-
-    [Fact]
-    public async Task UpdateComment_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
-    {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
-        CommentDto commentDto = new();
-
-        var logger = Mock.Of<ILogger<ApiController>>();
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity()),
-        };
-
-        var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s =>
-                s.UpdateComment(
-                    It.Is<string>(t => t == claim.Value),
-                    It.IsAny<int>(),
-                    It.Is<CommentDto>(c =>
-                        c.CreatedAt == commentDto.CreatedAt && c.Content == commentDto.Content
-                    )
-                ).Result
-            )
-            .Returns(commentDto)
-            .Verifiable(Times.Never());
-
-        var controller = new ApiController(serviceMock.Object, logger)
-        {
-            ControllerContext = new ControllerContext { HttpContext = httpContext },
-        };
-        var result = await controller.UpdateComment(1, commentDto);
-
-        Assert.IsType<BadRequestResult>(result);
-        serviceMock.Verify();
-    }
-
-    [Fact]
-    public async Task UpdateComment_ShouldReturnBadRequest_WhenServiceUpdateMethodReturnsNull()
-    {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
-        CommentDto commentDto = new();
-
-        var logger = Mock.Of<ILogger<ApiController>>();
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
-        };
-
-        var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s =>
-                s.UpdateComment(
-                    It.Is<string>(t => t == claim.Value),
-                    It.IsAny<int>(),
-                    It.Is<CommentDto>(c =>
-                        c.CreatedAt == commentDto.CreatedAt && c.Content == commentDto.Content
-                    )
+                    It.Is<int>(id => id == postDto.Id),
+                    It.Is<CommentDto>(c => c == commentDto)
                 ).Result
             )
             .Returns((CommentDto?)null)
@@ -735,7 +497,197 @@ public class ControllersTests
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext },
         };
-        var result = await controller.UpdateComment(1, commentDto);
+        var result = await controller.CreateComment(postDto.Id, commentDto);
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task UpdatePost_ShouldReturnNoContent_WhenValidNameIdentifierAndServiceUpdateMethod()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Id = 1, Content = "content" };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.UpdatePost(
+                    It.Is<string>(t => t == claim.Value),
+                    It.Is<int>(id => id == postDto.Id),
+                    It.Is<PostDto>(p => p == postDto)
+                ).Result
+            )
+            .Returns(true)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.UpdatePost(postDto.Id, postDto);
+
+        Assert.IsType<NoContentResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task UpdatePost_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
+    {
+        PostDto postDto = new() { Id = 1, Content = "content" };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.UpdatePost(postDto.Id, postDto);
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task UpdatePost_ShouldReturnBadRequest_WhenServiceUpdateMethodReturnsNull()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Id = 1, Content = "content" };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.UpdatePost(
+                    It.Is<string>(t => t == claim.Value),
+                    It.Is<int>(id => id == postDto.Id),
+                    It.Is<PostDto>(p => p == postDto)
+                ).Result
+            )
+            .Returns(false)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.UpdatePost(postDto.Id, postDto);
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateComment_ShouldReturnNoContent_WhenValidNameIdentifierAndServiceUpdateMethod()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Id = 1, Content = "content" };
+        CommentDto commentDto = new() { Id = 1 };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.UpdateComment(
+                    It.Is<string>(t => t == claim.Value),
+                    It.Is<int>(id => id == commentDto.Id),
+                    It.Is<CommentDto>(c => c == commentDto)
+                ).Result
+            )
+            .Returns(true)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.UpdateComment(commentDto.Id, commentDto);
+
+        Assert.IsType<NoContentResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateComment_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
+    {
+        CommentDto commentDto = new() { Id = 1 };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.UpdateComment(commentDto.Id, commentDto);
+
+        Assert.IsType<BadRequestResult>(result);
+        serviceMock.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateComment_ShouldReturnBadRequest_WhenServiceUpdateMethodReturnsNull()
+    {
+        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
+        PostDto postDto = new() { Id = 1, Content = "content" };
+        CommentDto commentDto = new() { Id = 1 };
+
+        var logger = Mock.Of<ILogger<ApiController>>();
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([claim])),
+        };
+
+        var serviceMock = new Mock<IBlogService>();
+        serviceMock
+            .Setup(s =>
+                s.UpdateComment(
+                    It.Is<string>(t => t == claim.Value),
+                    It.Is<int>(id => id == commentDto.Id),
+                    It.Is<CommentDto>(c => c == commentDto)
+                ).Result
+            )
+            .Returns(false)
+            .Verifiable(Times.Once());
+
+        var controller = new ApiController(serviceMock.Object, logger)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+        var result = await controller.UpdateComment(commentDto.Id, commentDto);
 
         Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();
@@ -745,7 +697,7 @@ public class ControllersTests
     public async Task DeletePost_ShouldReturnNoContent_WhenValidNameIdentifierAndServiceDeleteMethod()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
+        PostDto postDto = new() { Id = 1, Content = "content" };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
@@ -756,7 +708,12 @@ public class ControllersTests
 
         var serviceMock = new Mock<IBlogService>();
         serviceMock
-            .Setup(s => s.DeletePost(It.Is<string>(t => t == claim.Value), It.IsAny<int>()).Result)
+            .Setup(s =>
+                s.DeletePost(
+                    It.Is<string>(t => t == claim.Value),
+                    It.Is<int>(id => id == postDto.Id)
+                ).Result
+            )
             .Returns(true)
             .Verifiable(Times.Once());
 
@@ -764,7 +721,7 @@ public class ControllersTests
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext },
         };
-        var result = await controller.DeletePost(1);
+        var result = await controller.DeletePost(postDto.Id);
 
         Assert.IsType<NoContentResult>(result);
         serviceMock.Verify();
@@ -773,27 +730,22 @@ public class ControllersTests
     [Fact]
     public async Task DeletePost_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
     {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
+        PostDto postDto = new() { Id = 1, Content = "content" };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var httpContext = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity()),
+            User = new ClaimsPrincipal(new ClaimsIdentity([])),
         };
 
         var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s => s.DeletePost(It.Is<string>(t => t == claim.Value), It.IsAny<int>()).Result)
-            .Returns(true)
-            .Verifiable(Times.Never());
 
         var controller = new ApiController(serviceMock.Object, logger)
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext },
         };
-        var result = await controller.DeletePost(1);
+        var result = await controller.DeletePost(postDto.Id);
 
         Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();
@@ -803,7 +755,7 @@ public class ControllersTests
     public async Task DeletePost_ShouldReturnBadRequest_WhenServiceDeleteMethodReturnsFalse()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
+        PostDto postDto = new() { Id = 1, Content = "content" };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
@@ -814,7 +766,12 @@ public class ControllersTests
 
         var serviceMock = new Mock<IBlogService>();
         serviceMock
-            .Setup(s => s.DeletePost(It.Is<string>(t => t == claim.Value), It.IsAny<int>()).Result)
+            .Setup(s =>
+                s.DeletePost(
+                    It.Is<string>(t => t == claim.Value),
+                    It.Is<int>(id => id == postDto.Id)
+                ).Result
+            )
             .Returns(false)
             .Verifiable(Times.Once());
 
@@ -822,7 +779,7 @@ public class ControllersTests
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext },
         };
-        var result = await controller.DeletePost(1);
+        var result = await controller.DeletePost(postDto.Id);
 
         Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();
@@ -832,7 +789,7 @@ public class ControllersTests
     public async Task DeleteComment_ShouldReturnNoContent_WhenValidNameIdentifierAndServiceDeleteMethod()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
+        CommentDto commentDto = new() { Id = 1 };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
@@ -844,7 +801,10 @@ public class ControllersTests
         var serviceMock = new Mock<IBlogService>();
         serviceMock
             .Setup(s =>
-                s.DeleteComment(It.Is<string>(t => t == claim.Value), It.IsAny<int>()).Result
+                s.DeleteComment(
+                    It.Is<string>(t => t == claim.Value),
+                    It.Is<int>(id => id == commentDto.Id)
+                ).Result
             )
             .Returns(true)
             .Verifiable(Times.Once());
@@ -853,7 +813,7 @@ public class ControllersTests
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext },
         };
-        var result = await controller.DeleteComment(1);
+        var result = await controller.DeleteComment(commentDto.Id);
 
         Assert.IsType<NoContentResult>(result);
         serviceMock.Verify();
@@ -862,29 +822,22 @@ public class ControllersTests
     [Fact]
     public async Task DeleteComment_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
     {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
+        CommentDto commentDto = new() { Id = 1 };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var httpContext = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity()),
+            User = new ClaimsPrincipal(new ClaimsIdentity([])),
         };
 
         var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s =>
-                s.DeleteComment(It.Is<string>(t => t == claim.Value), It.IsAny<int>()).Result
-            )
-            .Returns(true)
-            .Verifiable(Times.Never());
 
         var controller = new ApiController(serviceMock.Object, logger)
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext },
         };
-        var result = await controller.DeleteComment(1);
+        var result = await controller.DeleteComment(commentDto.Id);
 
         Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();
@@ -894,7 +847,7 @@ public class ControllersTests
     public async Task DeleteComment_ShouldReturnBadRequest_WhenServiceDeleteMethodReturnsFalse()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
+        CommentDto commentDto = new() { Id = 1 };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
@@ -906,7 +859,10 @@ public class ControllersTests
         var serviceMock = new Mock<IBlogService>();
         serviceMock
             .Setup(s =>
-                s.DeleteComment(It.Is<string>(t => t == claim.Value), It.IsAny<int>()).Result
+                s.DeleteComment(
+                    It.Is<string>(t => t == claim.Value),
+                    It.Is<int>(id => id == commentDto.Id)
+                ).Result
             )
             .Returns(false)
             .Verifiable(Times.Once());
@@ -915,7 +871,7 @@ public class ControllersTests
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext },
         };
-        var result = await controller.DeleteComment(1);
+        var result = await controller.DeleteComment(commentDto.Id);
 
         Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();
@@ -925,7 +881,7 @@ public class ControllersTests
     public async Task DeleteLike_ShouldReturnNoContent_WhenValidNameIdentifierAndServiceDeleteMethod()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
+        LikeDto likeDto = new() { Id = 1 };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
@@ -936,7 +892,12 @@ public class ControllersTests
 
         var serviceMock = new Mock<IBlogService>();
         serviceMock
-            .Setup(s => s.DeleteLike(It.Is<string>(t => t == claim.Value), It.IsAny<int>()).Result)
+            .Setup(s =>
+                s.DeleteLike(
+                    It.Is<string>(t => t == claim.Value),
+                    It.Is<int>(id => id == likeDto.Id)
+                ).Result
+            )
             .Returns(true)
             .Verifiable(Times.Once());
 
@@ -944,7 +905,7 @@ public class ControllersTests
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext },
         };
-        var result = await controller.DeleteLike(1);
+        var result = await controller.DeleteLike(likeDto.Id);
 
         Assert.IsType<NoContentResult>(result);
         serviceMock.Verify();
@@ -953,27 +914,22 @@ public class ControllersTests
     [Fact]
     public async Task DeleteLike_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
     {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
+        LikeDto likeDto = new() { Id = 1 };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var httpContext = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity()),
+            User = new ClaimsPrincipal(new ClaimsIdentity([])),
         };
 
         var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s => s.DeleteLike(It.Is<string>(t => t == claim.Value), It.IsAny<int>()).Result)
-            .Returns(true)
-            .Verifiable(Times.Never());
 
         var controller = new ApiController(serviceMock.Object, logger)
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext },
         };
-        var result = await controller.DeleteLike(1);
+        var result = await controller.DeleteLike(likeDto.Id);
 
         Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();
@@ -983,7 +939,7 @@ public class ControllersTests
     public async Task DeleteLike_ShouldReturnBadRequest_WhenServiceDeleteMethodReturnsFalse()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
+        LikeDto likeDto = new() { Id = 1 };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
@@ -994,7 +950,12 @@ public class ControllersTests
 
         var serviceMock = new Mock<IBlogService>();
         serviceMock
-            .Setup(s => s.DeleteLike(It.Is<string>(t => t == claim.Value), It.IsAny<int>()).Result)
+            .Setup(s =>
+                s.DeleteLike(
+                    It.Is<string>(t => t == claim.Value),
+                    It.Is<int>(id => id == likeDto.Id)
+                ).Result
+            )
             .Returns(false)
             .Verifiable(Times.Once());
 
@@ -1002,7 +963,7 @@ public class ControllersTests
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext },
         };
-        var result = await controller.DeleteLike(1);
+        var result = await controller.DeleteLike(likeDto.Id);
 
         Assert.IsType<BadRequestResult>(result);
         serviceMock.Verify();
@@ -1012,7 +973,6 @@ public class ControllersTests
     public async Task DeleteUser_ShouldReturnNoContent_WhenValidNameIdentifierAndServiceDeleteMethod()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
@@ -1040,21 +1000,14 @@ public class ControllersTests
     [Fact]
     public async Task DeleteUser_ShouldReturnBadRequest_WhenNameIdentifierIsNull()
     {
-        var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
-
         var logger = Mock.Of<ILogger<ApiController>>();
 
         var httpContext = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity()),
+            User = new ClaimsPrincipal(new ClaimsIdentity([])),
         };
 
         var serviceMock = new Mock<IBlogService>();
-        serviceMock
-            .Setup(s => s.DeleteUser(It.Is<string>(t => t == claim.Value)).Result)
-            .Returns(true)
-            .Verifiable(Times.Never());
 
         var controller = new ApiController(serviceMock.Object, logger)
         {
@@ -1070,7 +1023,6 @@ public class ControllersTests
     public async Task DeleteUser_ShouldReturnBadRequest_WhenServiceDeleteMethodReturnsFalse()
     {
         var claim = new Claim(ClaimTypes.NameIdentifier, "id");
-        PostDto postDto = new() { Content = "content" };
 
         var logger = Mock.Of<ILogger<ApiController>>();
 
