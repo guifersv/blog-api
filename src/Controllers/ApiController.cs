@@ -32,10 +32,7 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
             _logger.LogWarning("ApiController: The Post doesn't exist.");
             return NotFound();
         }
-        else
-        {
-            return postModel;
-        }
+        return postModel;
     }
 
     [HttpGet("post/{postId}/likes")]
@@ -52,10 +49,7 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
             _logger.LogWarning("ApiController: Can't retrieve likes.");
             return NotFound();
         }
-        else
-        {
-            return likes.ToList();
-        }
+        return likes.ToList();
     }
 
     [HttpGet("post/{postId}/comments")]
@@ -72,10 +66,7 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
             _logger.LogWarning("ApiController: Can't retrieve comments.");
             return NotFound();
         }
-        else
-        {
-            return comments.ToList();
-        }
+        return comments.ToList();
     }
 
     [HttpGet("comment/{commentId}")]
@@ -93,10 +84,7 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
             _logger.LogWarning("ApiController: The Comment doesn't exist.");
             return NotFound();
         }
-        else
-        {
-            return commentModel;
-        }
+        return commentModel;
     }
 
     [HttpGet("like/{likeId}")]
@@ -114,10 +102,7 @@ public class ApiController(IBlogService service, ILogger<ApiController> logger) 
             _logger.LogWarning("ApiController: The Like doesn't exist.");
             return NotFound();
         }
-        else
-        {
-            return likeModel;
-        }
+        return likeModel;
     }
 
     [Authorize]
